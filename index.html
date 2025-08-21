@@ -1,1 +1,730 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>amlhdsan's homepage</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400;1,600&family=Inter:wght@300;400;500;600&family=Noto+Serif+SC:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Inter', 'Noto Serif SC', -apple-system, BlinkMacSystemFont, sans-serif;
+            overflow-x: hidden;
+            background: #f5f5f7;
+            color: #1d1d1f;
+        }
+
+        .background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('https://amlhdsan.github.io/photo/background.png');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            z-index: -2;
+            filter: blur(0.5px);
+        }
+
+        .background::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                180deg,
+                rgba(245, 245, 247, 0.1) 0%,
+                rgba(245, 245, 247, 0.05) 30%,
+                rgba(245, 245, 247, 0.1) 70%,
+                rgba(245, 245, 247, 0.2) 100%
+            );
+            z-index: -1;
+        }
+
+        .section {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 60px 20px;
+            position: relative;
+        }
+
+        .hero-section {
+            text-align: center;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .title {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(2.5rem, 8vw, 5rem);
+            font-weight: 600;
+            font-style: italic;
+            background: linear-gradient(135deg, #007AFF 0%, #5856D6 30%, #AF52DE 70%, #FF2D92 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 40px;
+            letter-spacing: -0.02em;
+            text-shadow: 0 2px 15px rgba(0, 122, 255, 0.15);
+            animation: titleFloat 8s ease-in-out infinite;
+            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        .title:hover {
+            transform: translateY(-3px);
+            text-shadow: 0 8px 25px rgba(0, 122, 255, 0.25);
+        }
+
+        @keyframes titleFloat {
+            0%, 100% {
+                transform: translateY(0px);
+            }
+            50% {
+                transform: translateY(-5px);
+            }
+        }
+
+        .signature {
+            background: linear-gradient(135deg, 
+                rgba(135, 206, 250, 0.15) 0%, 
+                rgba(173, 216, 230, 0.12) 30%, 
+                rgba(176, 224, 230, 0.1) 70%, 
+                rgba(135, 206, 250, 0.15) 100%
+            );
+            backdrop-filter: blur(40px) saturate(200%);
+            -webkit-backdrop-filter: blur(40px) saturate(200%);
+            border: 1px solid rgba(135, 206, 250, 0.3);
+            border-radius: 24px;
+            padding: 35px 45px;
+            max-width: 600px;
+            font-size: 1.2rem;
+            line-height: 1.8;
+            text-align: center;
+            color: rgba(29, 29, 31, 0.85);
+            box-shadow: 
+                0 8px 32px rgba(135, 206, 250, 0.15),
+                inset 0 1px 0 rgba(255, 255, 255, 0.4);
+            transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            animation: signatureFloat 6s ease-in-out infinite;
+            transform: translateZ(0);
+            will-change: transform;
+        }
+
+        .signature:hover {
+            transform: translateY(-8px) translateZ(0);
+            background: linear-gradient(135deg, 
+                rgba(135, 206, 250, 0.2) 0%, 
+                rgba(173, 216, 230, 0.17) 30%, 
+                rgba(176, 224, 230, 0.15) 70%, 
+                rgba(135, 206, 250, 0.2) 100%
+            );
+            backdrop-filter: blur(50px) saturate(220%);
+            -webkit-backdrop-filter: blur(50px) saturate(220%);
+            box-shadow: 
+                0 16px 48px rgba(135, 206, 250, 0.2),
+                inset 0 1px 0 rgba(255, 255, 255, 0.5);
+            border-color: rgba(135, 206, 250, 0.4);
+        }
+
+        @keyframes signatureFloat {
+            0%, 100% {
+                transform: translateY(0px) translateZ(0);
+            }
+            50% {
+                transform: translateY(-6px) translateZ(0);
+            }
+        }
+
+        .scroll-indicator {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: rgba(29, 29, 31, 0.6);
+            font-size: 0.9rem;
+            text-align: center;
+            animation: bounce 2s infinite;
+        }
+
+        .scroll-indicator::after {
+            content: '↓';
+            display: block;
+            font-size: 1.5rem;
+            margin-top: 5px;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {
+                transform: translateX(-50%) translateY(0);
+            }
+            40% {
+                transform: translateX(-50%) translateY(-10px);
+            }
+            60% {
+                transform: translateX(-50%) translateY(-5px);
+            }
+        }
+
+        .content-section {
+            opacity: 0;
+            transform: translateY(50px);
+            transition: all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        .content-section.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .section-title {
+            font-size: clamp(1.8rem, 5vw, 2.5rem);
+            font-weight: 600;
+            text-align: center;
+            margin-bottom: 50px;
+            background: linear-gradient(135deg, #007AFF 0%, #5856D6 50%, #AF52DE 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .social-container {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+            max-width: 500px;
+            width: 100%;
+        }
+
+        .social-item {
+            background: linear-gradient(135deg, 
+                rgba(135, 206, 250, 0.12) 0%, 
+                rgba(173, 216, 230, 0.1) 50%, 
+                rgba(176, 224, 230, 0.08) 100%
+            );
+            backdrop-filter: blur(35px) saturate(180%);
+            -webkit-backdrop-filter: blur(35px) saturate(180%);
+            border: 1px solid rgba(135, 206, 250, 0.25);
+            border-radius: 20px;
+            padding: 25px 30px;
+            transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            position: relative;
+            overflow: hidden;
+            transform: translateZ(0);
+            will-change: transform;
+        }
+
+        .social-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, 
+                transparent, 
+                rgba(0, 122, 255, 0.08), 
+                transparent
+            );
+            transition: left 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        .social-item:hover::before {
+            left: 100%;
+        }
+
+        .social-item:hover {
+            transform: translateY(-6px) scale(1.02) translateZ(0);
+            background: linear-gradient(135deg, 
+                rgba(135, 206, 250, 0.18) 0%, 
+                rgba(173, 216, 230, 0.15) 50%, 
+                rgba(176, 224, 230, 0.12) 100%
+            );
+            backdrop-filter: blur(45px) saturate(200%);
+            -webkit-backdrop-filter: blur(45px) saturate(200%);
+            border-color: rgba(0, 122, 255, 0.35);
+            box-shadow: 0 12px 40px rgba(0, 122, 255, 0.15);
+        }
+
+        .social-label {
+            font-size: 1rem;
+            color: rgba(29, 29, 31, 0.6);
+            margin-bottom: 8px;
+            font-weight: 400;
+        }
+
+        .social-link {
+            color: rgba(29, 29, 31, 0.9);
+            text-decoration: none;
+            font-size: 1.1rem;
+            font-weight: 500;
+            display: block;
+            transition: color 0.3s ease;
+        }
+
+        .social-link:hover {
+            color: #007AFF;
+        }
+
+        .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            max-width: 1000px;
+            width: 100%;
+        }
+
+        .project-card {
+            background: linear-gradient(135deg, 
+                rgba(135, 206, 250, 0.08) 0%, 
+                rgba(173, 216, 230, 0.06) 50%, 
+                rgba(176, 224, 230, 0.04) 100%
+            );
+            backdrop-filter: blur(40px) saturate(160%);
+            -webkit-backdrop-filter: blur(40px) saturate(160%);
+            border: 1px solid rgba(135, 206, 250, 0.2);
+            border-radius: 24px;
+            padding: 30px;
+            transition: all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            position: relative;
+            cursor: pointer;
+            overflow: hidden;
+            transform: translateZ(0);
+            will-change: transform;
+        }
+
+        .project-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, #007AFF, #5856D6, #AF52DE);
+            transform: translateX(-100%);
+            transition: transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        .project-card:hover::before {
+            transform: translateX(0);
+        }
+
+        .project-card:hover {
+            transform: translateY(-12px) translateZ(0);
+            background: linear-gradient(135deg, 
+                rgba(135, 206, 250, 0.15) 0%, 
+                rgba(173, 216, 230, 0.12) 50%, 
+                rgba(176, 224, 230, 0.1) 100%
+            );
+            backdrop-filter: blur(50px) saturate(200%);
+            -webkit-backdrop-filter: blur(50px) saturate(200%);
+            border-color: rgba(0, 122, 255, 0.3);
+            box-shadow: 
+                0 20px 60px rgba(0, 122, 255, 0.12),
+                0 0 0 1px rgba(0, 122, 255, 0.08);
+        }
+
+        .project-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            background: linear-gradient(135deg, #007AFF 0%, #5856D6 50%, #AF52DE 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .project-description {
+            color: rgba(29, 29, 31, 0.7);
+            line-height: 1.6;
+            font-size: 0.95rem;
+        }
+
+        .project-status {
+            margin-top: 15px;
+            padding: 8px 15px;
+            background: linear-gradient(135deg, 
+                rgba(0, 122, 255, 0.08) 0%, 
+                rgba(88, 86, 214, 0.06) 100%
+            );
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(0, 122, 255, 0.2);
+            border-radius: 12px;
+            font-size: 0.85rem;
+            color: rgba(0, 122, 255, 0.9);
+            text-align: center;
+        }
+
+        .music-player {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: linear-gradient(135deg, 
+                rgba(135, 206, 250, 0.15) 0%, 
+                rgba(173, 216, 230, 0.12) 50%, 
+                rgba(176, 224, 230, 0.1) 100%
+            );
+            backdrop-filter: blur(40px) saturate(180%);
+            -webkit-backdrop-filter: blur(40px) saturate(180%);
+            border: 1px solid rgba(135, 206, 250, 0.3);
+            border-radius: 60px;
+            padding: 15px 25px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            box-shadow: 0 8px 32px rgba(0, 122, 255, 0.1);
+            transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            z-index: 1000;
+            transform: translateZ(0);
+        }
+
+        .music-player:hover {
+            transform: translateY(-4px) translateZ(0);
+            backdrop-filter: blur(50px) saturate(200%);
+            -webkit-backdrop-filter: blur(50px) saturate(200%);
+            box-shadow: 0 16px 48px rgba(0, 122, 255, 0.15);
+            background: linear-gradient(135deg, 
+                rgba(135, 206, 250, 0.2) 0%, 
+                rgba(173, 216, 230, 0.17) 50%, 
+                rgba(176, 224, 230, 0.15) 100%
+            );
+        }
+
+        .play-btn {
+            width: 45px;
+            height: 45px;
+            border: none;
+            background: linear-gradient(135deg, #007AFF 0%, #5856D6 100%);
+            border-radius: 50%;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            font-size: 16px;
+            box-shadow: 0 4px 20px rgba(0, 122, 255, 0.3);
+        }
+
+        .play-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 25px rgba(0, 122, 255, 0.4);
+        }
+
+        .music-info {
+            font-size: 0.9rem;
+            color: rgba(29, 29, 31, 0.8);
+            white-space: nowrap;
+            font-weight: 500;
+        }
+
+        @media (max-width: 768px) {
+            .section {
+                padding: 40px 15px;
+            }
+
+            .signature {
+                padding: 25px 30px;
+                font-size: 1.1rem;
+            }
+
+            .projects-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .social-container {
+                max-width: 100%;
+            }
+
+            .music-player {
+                bottom: 20px;
+                right: 20px;
+                padding: 12px 20px;
+            }
+
+            .music-info {
+                font-size: 0.8rem;
+            }
+
+            .play-btn {
+                width: 40px;
+                height: 40px;
+                font-size: 14px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .music-info {
+                display: none;
+            }
+        }
+
+        /* 滚动动画 */
+        .fade-in-up {
+            opacity: 0;
+            transform: translateY(40px);
+            transition: all 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        .fade-in-up.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .stagger-1 { transition-delay: 0.1s; }
+        .stagger-2 { transition-delay: 0.2s; }
+        .stagger-3 { transition-delay: 0.3s; }
+        .stagger-4 { transition-delay: 0.4s; }
+        .stagger-5 { transition-delay: 0.5s; }
+        .stagger-6 { transition-delay: 0.6s; }
+
+        /* 硬件加速和性能优化 */
+        .signature,
+        .social-item,
+        .project-card,
+        .music-player {
+            transform: translateZ(0);
+            will-change: transform;
+        }
+    </style>
+</head>
+<body>
+    <div class="background"></div>
+
+    <!-- 首屏：标题和签名 -->
+    <section class="section hero-section">
+        <h1 class="title">amlhdsan's homepage</h1>
+        <div class="signature">
+            電影發明以後，人類的生命，比以前至少延長了三倍。<br>
+        </div>
+        <div class="scroll-indicator">向下滑动探索更多</div>
+    </section>
+
+    <!-- 个人链接区域 -->
+    <section class="section content-section">
+        <h2 class="section-title">数字足迹</h2>
+        <div class="social-container">
+            <div class="social-item fade-in-up stagger-1">
+                <div class="social-label">我的 Github 仓库</div>
+                <a href="https://github.com/amlhdsan" class="social-link" target="_blank">Github</a>
+            </div>
+            <div class="social-item fade-in-up stagger-2">
+                <div class="social-label">我的知乎</div>
+                <a href="https://www.zhihu.com/people/50-15-97-52-51" class="social-link" target="_blank">知乎</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- 项目展示区域 -->
+    <section class="section content-section">
+        <h2 class="section-title">正在构建的想法</h2>
+        <div class="projects-grid">
+            <div class="project-card fade-in-up stagger-1">
+                <h3 class="project-title">我的影音档案馆</h3>
+                <p class="project-description">收藏那些触动心灵的画面与声音，每一帧都是时光的印记</p>
+                <div class="project-status">正在整理中，敬请期待</div>
+            </div>
+            
+            <div class="project-card fade-in-up stagger-2">
+                <h3 class="project-title">上网不完全指北</h3>
+                <p class="project-description">感觉挺适合小白的？一些实用的网络生存技巧分享</p>
+                <div class="project-status">仍在更新中，别急，慢慢来，大概会在 10 月份左右搞好</div>
+            </div>
+            
+            <div class="project-card fade-in-up stagger-3">
+                <h3 class="project-title">Cardistry</h3>
+                <p class="project-description">纸牌在指尖飞舞的艺术，每一个动作都诗意盎然</p>
+                <div class="project-status">测评，心得之类的东西，没搞好别看了</div>
+            </div>
+            
+            <div class="project-card fade-in-up stagger-4">
+                <h3 class="project-title">macOS 系统不完全指北</h3>
+                <p class="project-description">让你的 Mac 发挥最大潜力的使用心得</p>
+                <div class="project-status">正在完善内容架构</div>
+            </div>
+            
+            <div class="project-card fade-in-up stagger-5">
+                <h3 class="project-title">扯淡</h3>
+                <p class="project-description">你也可以理解为随笔，生活中的点点滴滴思考</p>
+                <div class="project-status">文字正在路上</div>
+            </div>
+            
+            <div class="project-card fade-in-up stagger-6">
+                <h3 class="project-title">稀缺资源</h3>
+                <p class="project-description">那些难以寻觅的宝藏，等待有心人发现</p>
+                <div class="project-status">整理中，请耐心等候</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 音乐播放器 -->
+    <div class="music-player">
+        <button class="play-btn" onclick="toggleMusic()">
+            <span id="playIcon">▶</span>
+        </button>
+        <div class="music-info">17さいのうた</div>
+        <audio id="bgMusic" loop>
+            <source src="https://amlhdsan.github.io/music/17%E3%81%95%E3%81%84%E3%81%AE%E3%81%86%E3%81%9F.mp3" type="audio/mpeg">
+        </audio>
+    </div>
+
+    <script>
+        const music = document.getElementById('bgMusic');
+        const playIcon = document.getElementById('playIcon');
+        let isPlaying = false;
+
+        function toggleMusic() {
+            if (isPlaying) {
+                music.pause();
+                playIcon.textContent = '▶';
+            } else {
+                music.play().catch(e => console.log('音频播放失败:', e));
+                playIcon.textContent = '⏸';
+            }
+            isPlaying = !isPlaying;
+        }
+
+        // 优化的滚动动画观察器
+        const observerOptions = {
+            threshold: 0.15,
+            rootMargin: '0px 0px -100px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, observerOptions);
+
+        // 观察需要动画的元素
+        document.querySelectorAll('.content-section, .fade-in-up').forEach(el => {
+            observer.observe(el);
+        });
+
+        // 优化的滚动处理
+        let isScrolling = false;
+        
+        document.addEventListener('wheel', (e) => {
+            if (isScrolling) return;
+            
+            if (Math.abs(e.deltaY) > 30) {
+                e.preventDefault();
+                isScrolling = true;
+                
+                const sections = document.querySelectorAll('.section');
+                let currentSection = 0;
+                
+                sections.forEach((section, index) => {
+                    const rect = section.getBoundingClientRect();
+                    if (rect.top <= window.innerHeight / 2 && rect.bottom >= window.innerHeight / 2) {
+                        currentSection = index;
+                    }
+                });
+
+                if (e.deltaY > 0 && currentSection < sections.length - 1) {
+                    sections[currentSection + 1].scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                } else if (e.deltaY < 0 && currentSection > 0) {
+                    sections[currentSection - 1].scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+                
+                setTimeout(() => {
+                    isScrolling = false;
+                }, 800);
+            }
+        }, { passive: false });
+
+        // 优化的移动端触摸处理
+        let touchStartY = 0;
+        let touchEndY = 0;
+        let isTouching = false;
+
+        document.addEventListener('touchstart', (e) => {
+            touchStartY = e.changedTouches[0].screenY;
+        }, { passive: true });
+
+        document.addEventListener('touchend', (e) => {
+            if (isTouching) return;
+            
+            touchEndY = e.changedTouches[0].screenY;
+            handleSwipe();
+        }, { passive: true });
+
+        function handleSwipe() {
+            const swipeThreshold = 80;
+            const diff = touchStartY - touchEndY;
+
+            if (Math.abs(diff) > swipeThreshold) {
+                isTouching = true;
+                
+                const sections = document.querySelectorAll('.section');
+                let currentSection = 0;
+                
+                sections.forEach((section, index) => {
+                    const rect = section.getBoundingClientRect();
+                    if (rect.top <= window.innerHeight / 2 && rect.bottom >= window.innerHeight / 2) {
+                        currentSection = index;
+                    }
+                });
+
+                if (diff > 0 && currentSection < sections.length - 1) {
+                    sections[currentSection + 1].scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                } else if (diff < 0 && currentSection > 0) {
+                    sections[currentSection - 1].scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+                
+                setTimeout(() => {
+                    isTouching = false;
+                }, 800);
+            }
+        }
+
+        // 视口高度处理
+        function setVH() {
+            let vh = window.innerHeight * 0.01;
+            document.documentElement.style.setProperty('--vh', `${vh}px`);
+        }
+
+        setVH();
+        window.addEventListener('resize', setVH);
+
+        // 预加载优化
+        document.addEventListener('DOMContentLoaded', () => {
+            // 预热动画
+            requestAnimationFrame(() => {
+                document.body.style.opacity = '1';
+            });
+        });
+    </script>
+</body>
+</html>
