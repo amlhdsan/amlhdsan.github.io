@@ -470,6 +470,13 @@
             }
         }
 
+        .copyright {
+            position: fixed; bottom: 1rem; left: 1rem; font-size: .75rem; font-family: 'Fira Code', monospace;
+            backdrop-filter: blur(10px); background: rgba(0,0,0,.2); padding: .5rem 1rem; border-radius: 20px; border: 1px solid rgba(255,255,255,.1);
+        }
+        body.light-mode .copyright { background: rgba(255,255,255,.5); color: rgba(0,0,0,.7); border: 1px solid rgba(0,0,0,.1); }
+
+
         @media (max-width: 480px) {
             .music-info {
                 display: none;
@@ -573,6 +580,8 @@
             </div>
         </div>
     </section>
+
+    <div class="copyright">© 2025 amlhdsan. All rights reserved.</div>
 
     <!-- 音乐播放器 -->
     <div class="music-player">
