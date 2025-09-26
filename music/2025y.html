@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spotify Wrapped 2025</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Circular:wght@400;500;600;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Circular', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #1db954 0%, #1ed760 50%, #0f4c2b 100%);
+            min-height: 100vh;
+            padding: 20px;
+            animation: gradientShift 8s ease-in-out infinite alternate;
+        }
+        
+        @keyframes gradientShift {
+            0% { background: linear-gradient(135deg, #1db954 0%, #1ed760 50%, #0f4c2b 100%); }
+            100% { background: linear-gradient(135deg, #0f4c2b 0%, #1db954 50%, #1ed760 100%); }
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 32px;
+            backdrop-filter: blur(20px);
+            box-shadow: 0 32px 64px rgba(0, 0, 0, 0.25);
+            overflow: hidden;
+            animation: slideUp 1s ease-out;
+        }
+        
+        @keyframes slideUp {
+            from { transform: translateY(50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #1db954, #1ed760);
+            color: white;
+            padding: 60px 40px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: rotate 20s linear infinite;
+        }
+        
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        .spotify-logo {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 20px;
+            filter: brightness(0) invert(1);
+            animation: pulse 2s ease-in-out infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        .header h1 {
+            font-size: 48px;
+            font-weight: 700;
+            margin-bottom: 10px;
+            text-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        }
+        
+        .header p {
+            font-size: 20px;
+            opacity: 0.9;
+            font-weight: 400;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            padding: 60px 40px;
+        }
+        
+        .stat-card {
+            background: white;
+            border-radius: 24px;
+            padding: 40px;
+            text-align: center;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            border: 1px solid rgba(29, 185, 84, 0.1);
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 16px 48px rgba(29, 185, 84, 0.2);
+        }
+        
+        .stat-number {
+            font-size: 48px;
+            font-weight: 700;
+            color: #1db954;
+            margin-bottom: 10px;
+            display: block;
+        }
+        
+        .stat-label {
+            font-size: 18px;
+            color: #666;
+            font-weight: 500;
+        }
+        
+        .top-songs {
+            padding: 40px;
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+        }
+        
+        .section-title {
+            font-size: 36px;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 40px;
+            color: #1db954;
+            position: relative;
+        }
+        
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 4px;
+            background: linear-gradient(90deg, #1db954, #1ed760);
+            border-radius: 2px;
+        }
+        
+        .song-list {
+            background: white;
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+        
+        .song-item {
+            display: grid;
+            grid-template-columns: 60px 1fr 200px 120px;
+            gap: 20px;
+            padding: 20px 30px;
+            align-items: center;
+            transition: all 0.3s ease;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+        
+        .song-item:hover {
+            background: rgba(29, 185, 84, 0.05);
+            transform: scale(1.01);
+        }
+        
+        .song-item:last-child {
+            border-bottom: none;
+        }
+        
+        .rank {
+            font-size: 24px;
+            font-weight: 700;
+            color: #1db954;
+            text-align: center;
+        }
+        
+        .song-info h3 {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 4px;
+        }
+        
+        .artist {
+            font-size: 14px;
+            color: #666;
+            font-weight: 500;
+        }
+        
+        .play-count {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1db954;
+            text-align: right;
+        }
+        
+        .highlight {
+            background: linear-gradient(135deg, rgba(29, 185, 84, 0.1), rgba(30, 215, 96, 0.1));
+            border-left: 4px solid #1db954;
+        }
+        
+        .footer {
+            background: #191414;
+            color: white;
+            text-align: center;
+            padding: 30px 40px;
+            font-size: 14px;
+        }
+        
+        .footer-logo {
+            width: 100px;
+            margin-bottom: 15px;
+            opacity: 0.8;
+        }
+        
+        @media (max-width: 768px) {
+            .header h1 { font-size: 36px; }
+            .header p { font-size: 16px; }
+            .stats-grid { grid-template-columns: 1fr; padding: 40px 20px; }
+            .song-item { 
+                grid-template-columns: 40px 1fr 100px;
+                gap: 15px;
+                padding: 15px 20px;
+            }
+            .artist { display: none; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <img src="https://storage.googleapis.com/pr-newsroom-wp/1/2023/05/Spotify_Primary_Logo_RGB_Green.png" alt="Spotify" class="spotify-logo">
+            <h1>Your 2025 Wrapped</h1>
+            <p>又是音乐陪伴的一年</p>
+        </div>
+        
+        <div class="stats-grid">
+            <div class="stat-card">
+                <span class="stat-number">394</span>
+                <div class="stat-label">小时音乐时光</div>
+            </div>
+            <div class="stat-card">
+                <span class="stat-number">1,276</span>
+                <div class="stat-label">首不同歌曲</div>
+            </div>
+            <div class="stat-card">
+                <span class="stat-number">16,303</span>
+                <div class="stat-label">总播放次数</div>
+            </div>
+        </div>
+        
+        <div class="top-songs">
+            <h2 class="section-title">年度最爱单曲</h2>
+            <div class="stat-card" style="margin-bottom: 40px;">
+                <div style="font-size: 24px; font-weight: 600; color: #1db954; margin-bottom: 10px;">17さいのうた。</div>
+                <div style="font-size: 18px; color: #666; margin-bottom: 20px;">『ユイカ』</div>
+                <div style="display: flex; justify-content: space-around; flex-wrap: wrap; gap: 20px;">
+                    <div><span class="stat-number" style="font-size: 32px;">876</span><div class="stat-label">播放次数</div></div>
+                    <div><span class="stat-number" style="font-size: 32px;">62.8</span><div class="stat-label">小时</div></div>
+                </div>
+            </div>
+            
+            <h2 class="section-title">年度 Top 20</h2>
+            <div class="song-list">
+                <div class="song-item highlight">
+                    <div class="rank">1</div>
+                    <div class="song-info">
+                        <h3>17さいのうた。</h3>
+                        <div class="artist">『ユイカ』</div>
+                    </div>
+                    <div class="artist">『ユイカ』</div>
+                    <div class="play-count">876 遍</div>
+                </div>
+                <div class="song-item">
+                    <div class="rank">2</div>
+                    <div class="song-info">
+                        <h3>Merry-Go-Round of Life</h3>
+                        <div class="artist">Joe Hisaishi</div>
+                    </div>
+                    <div class="artist">Joe Hisaishi</div>
+                    <div class="play-count">610 遍</div>
+                </div>
+                <div class="song-item">
+                    <div class="rank">3</div>
+                    <div class="song-info">
+                        <h3>あの夢をなぞって</h3>
+                        <div class="artist">YOASOBI</div>
+                    </div>
+                    <div class="artist">YOASOBI</div>
+                    <div class="play-count">416 遍</div>
+                </div>
+                <div class="song-item">
+                    <div class="rank">4</div>
+                    <div class="song-info">
+                        <h3>遇见</h3>
+                        <div class="artist">孙燕姿</div>
+                    </div>
+                    <div class="artist">孙燕姿</div>
+                    <div class="play-count">375 遍</div>
+                </div>
+                <div class="song-item">
+                    <div class="rank">5</div>
+                    <div class="song-info">
+                        <h3>たぶん</h3>
+                        <div class="artist">YOASOBI</div>
+                    </div>
+                    <div class="artist">YOASOBI</div>
+                    <div class="play-count">366 遍</div>
+                </div>
+                <div class="song-item highlight">
+                    <div class="rank">6</div>
+                    <div class="song-info">
+                        <h3>Amanojaku</h3>
+                        <div class="artist">Akie秋绘</div>
+                    </div>
+                    <div class="artist">Akie秋绘</div>
+                    <div class="play-count">350 遍</div>
+                </div>
+                <div class="song-item">
+                    <div class="rank">7</div>
+                    <div class="song-info">
+                        <h3>好きだから。</h3>
+                        <div class="artist">『ユイカ』</div>
+                    </div>
+                    <div class="artist">『ユイカ』</div>
+                    <div class="play-count">339 遍</div>
+                </div>
+                <div class="song-item">
+                    <div class="rank">8</div>
+                    <div class="song-info">
+                        <h3>スパークル</h3>
+                        <div class="artist">Lilas</div>
+                    </div>
+                    <div class="artist">Lilas</div>
+                    <div class="play-count">327 遍</div>
+                </div>
+                <div class="song-item">
+                    <div class="rank">9</div>
+                    <div class="song-info">
+                        <h3>SAKURA</h3>
+                        <div class="artist">生物股長</div>
+                    </div>
+                    <div class="artist">生物股長</div>
+                    <div class="play-count">319 遍</div>
+                </div>
+                <div class="song-item">
+                    <div class="rank">10</div>
+                    <div class="song-info">
+                        <h3>アンコール</h3>
+                        <div class="artist">YOASOBI</div>
+                    </div>
+                    <div class="artist">YOASOBI</div>
+                    <div class="play-count">317 遍</div>
+                </div>
+                <div class="song-item">
+                    <div class="rank">11</div>
+                    <div class="song-info">
+                        <h3>容易受伤的女人</h3>
+                        <div class="artist">王菲</div>
+                    </div>
+                    <div class="artist">王菲</div>
+                    <div class="play-count">312 遍</div>
+                </div>
+                <div class="song-item highlight">
+                    <div class="rank">12</div>
+                    <div class="song-info">
+                        <h3>Sparkle - movie ver.</h3>
+                        <div class="artist">RADWIMPS</div>
+                    </div>
+                    <div class="artist">RADWIMPS</div>
+                    <div class="play-count">304 遍</div>
+                </div>
+                <div class="song-item">
+                    <div class="rank">13</div>
+                    <div class="song-info">
+                        <h3>红豆</h3>
+                        <div class="artist">方大同</div>
+                    </div>
+                    <div class="artist">方大同</div>
+                    <div class="play-count">301 遍</div>
+                </div>
+                <div class="song-item">
+                    <div class="rank">14</div>
+                    <div class="song-info">
+                        <h3>secret base〜君がくれたもの〜</h3>
+                        <div class="artist">ZONE</div>
+                    </div>
+                    <div class="artist">ZONE</div>
+                    <div class="play-count">298 遍</div>
+                </div>
+                <div class="song-item">
+                    <div class="rank">15</div>
+                    <div class="song-info">
+                        <h3>爱爱爱</h3>
+                        <div class="artist">方大同</div>
+                    </div>
+                    <div class="artist">方大同</div>
+                    <div class="play-count">253 遍</div>
+                </div>
+                <div class="song-item highlight">
+                    <div class="rank">16</div>
+                    <div class="song-info">
+                        <h3>ただ声一つ</h3>
+                        <div class="artist">Rokudenashi</div>
+                    </div>
+                    <div class="artist">Rokudenashi</div>
+                    <div class="play-count">244 遍</div>
+                </div>
+                <div class="song-item">
+                    <div class="rank">17</div>
+                    <div class="song-info">
+                        <h3>清明雨上</h3>
+                        <div class="artist">许嵩</div>
+                    </div>
+                    <div class="artist">许嵩</div>
+                    <div class="play-count">237 遍</div>
+                </div>
+                <div class="song-item">
+                    <div class="rank">18</div>
+                    <div class="song-info">
+                        <h3>打上花火</h3>
+                        <div class="artist">DAOKO,米津玄师</div>
+                    </div>
+                    <div class="artist">DAOKO,米津玄师</div>
+                    <div class="play-count">213 遍</div>
+                </div>
+                <div class="song-item highlight">
+                    <div class="rank">19</div>
+                    <div class="song-info">
+                        <h3>风居住的街道（钢琴版）</h3>
+                        <div class="artist">Pure Piano</div>
+                    </div>
+                    <div class="artist">Pure Piano</div>
+                    <div class="play-count">192 遍</div>
+                </div>
+                <div class="song-item">
+                    <div class="rank">20</div>
+                    <div class="song-info">
+                        <h3>地球仪</h3>
+                        <div class="artist">米津玄师</div>
+                    </div>
+                    <div class="artist">米津玄师</div>
+                    <div class="play-count">171 遍</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <img src="https://storage.googleapis.com/pr-newsroom-wp/1/2023/05/Spotify_Primary_Logo_RGB_Green.png" alt="Spotify" class="footer-logo">
+            <p>© 2025 Spotify AB. All rights reserved.</p>
+            <p>Thanks for an incredible year of music!</p>
+        </div>
+    </div>
+</body>
+</html>

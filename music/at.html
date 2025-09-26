@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spotify All Time History</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Circular:wght@400;500;600;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Circular', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #1db954 0%, #1ed760 30%, #191414 70%, #0d0d0d 100%);
+            min-height: 100vh;
+            padding: 20px;
+            animation: gradientShift 12s ease-in-out infinite alternate;
+        }
+        
+        @keyframes gradientShift {
+            0% { background: linear-gradient(135deg, #1db954 0%, #1ed760 30%, #191414 70%, #0d0d0d 100%); }
+            50% { background: linear-gradient(135deg, #191414 0%, #1db954 30%, #1ed760 70%, #0f4c2b 100%); }
+            100% { background: linear-gradient(135deg, #0d0d0d 0%, #191414 30%, #1db954 70%, #1ed760 100%); }
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.97);
+            border-radius: 32px;
+            backdrop-filter: blur(30px);
+            box-shadow: 0 40px 80px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            animation: slideUp 1.2s ease-out;
+        }
+        
+        @keyframes slideUp {
+            from { transform: translateY(60px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #191414 0%, #1db954 50%, #1ed760 100%);
+            color: white;
+            padding: 80px 40px 60px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: 
+                radial-gradient(circle at 20% 20%, rgba(255,255,255,0.15) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(29,185,84,0.3) 0%, transparent 50%);
+            animation: float 25s linear infinite;
+        }
+        
+        @keyframes float {
+            from { transform: rotate(0deg) translate(-50px) rotate(0deg); }
+            to { transform: rotate(360deg) translate(-50px) rotate(-360deg); }
+        }
+        
+        .spotify-logo {
+            width: 90px;
+            height: 90px;
+            margin-bottom: 25px;
+            filter: brightness(0) invert(1);
+            animation: logoGlow 3s ease-in-out infinite;
+        }
+        
+        @keyframes logoGlow {
+            0%, 100% { 
+                transform: scale(1);
+                filter: brightness(0) invert(1) drop-shadow(0 0 20px rgba(255,255,255,0.3));
+            }
+            50% { 
+                transform: scale(1.08);
+                filter: brightness(0) invert(1) drop-shadow(0 0 30px rgba(29,185,84,0.8));
+            }
+        }
+        
+        .header h1 {
+            font-size: 52px;
+            font-weight: 700;
+            margin-bottom: 15px;
+            text-shadow: 0 4px 12px rgba(0,0,0,0.4);
+            background: linear-gradient(45deg, #ffffff, #1ed760);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .header p {
+            font-size: 22px;
+            opacity: 0.95;
+            font-weight: 400;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .stats-overview {
+            padding: 50px 40px;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            text-align: center;
+        }
+        
+        .overview-title {
+            font-size: 32px;
+            font-weight: 700;
+            color: #1db954;
+            margin-bottom: 30px;
+            position: relative;
+        }
+        
+        .overview-title::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 4px;
+            background: linear-gradient(90deg, #1db954, #1ed760);
+            border-radius: 2px;
+        }
+        
+        .overview-text {
+            font-size: 20px;
+            color: #333;
+            line-height: 1.6;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .top-songs {
+            padding: 60px 40px;
+            background: white;
+        }
+        
+        .section-title {
+            font-size: 42px;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 50px;
+            background: linear-gradient(135deg, #1db954, #1ed760, #191414);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            position: relative;
+        }
+        
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 120px;
+            height: 5px;
+            background: linear-gradient(90deg, #1db954, #1ed760);
+            border-radius: 3px;
+        }
+        
+        .song-list {
+            background: linear-gradient(135deg, rgba(255,255,255,1) 0%, rgba(248,249,250,1) 100%);
+            border-radius: 28px;
+            overflow: hidden;
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+            border: 2px solid rgba(29, 185, 84, 0.1);
+        }
+        
+        .song-item {
+            display: grid;
+            grid-template-columns: 80px 2fr 1fr 150px;
+            gap: 25px;
+            padding: 25px 35px;
+            align-items: center;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+            position: relative;
+        }
+        
+        .song-item::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 0;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(29, 185, 84, 0.1), rgba(30, 215, 96, 0.1));
+            transition: width 0.4s ease;
+            z-index: 1;
+        }
+        
+        .song-item:hover {
+            transform: translateX(8px);
+            box-shadow: -8px 0 30px rgba(29, 185, 84, 0.15);
+        }
+        
+        .song-item:hover::before {
+            width: 100%;
+        }
+        
+        .song-item:last-child {
+            border-bottom: none;
+        }
+        
+        .song-item > * {
+            position: relative;
+            z-index: 2;
+        }
+        
+        .rank {
+            font-size: 28px;
+            font-weight: 700;
+            color: #1db954;
+            text-align: center;
+            background: linear-gradient(135deg, #1db954, #1ed760);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            box-shadow: 0 4px 15px rgba(29, 185, 84, 0.3);
+        }
+        
+        .rank.top-3 {
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            box-shadow: 0 6px 20px rgba(255, 215, 0, 0.4);
+            transform: scale(1.1);
+        }
+        
+        .song-info h3 {
+            font-size: 20px;
+            font-weight: 600;
+            color: #222;
+            margin-bottom: 8px;
+            line-height: 1.3;
+        }
+        
+        .artist {
+            font-size: 16px;
+            color: #666;
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+        
+        .album {
+            font-size: 14px;
+            color: #888;
+            font-style: italic;
+            opacity: 0.8;
+        }
+        
+        .play-count {
+            font-size: 20px;
+            font-weight: 700;
+            color: #1db954;
+            text-align: right;
+        }
+        
+        .play-count-number {
+            font-size: 24px;
+            display: block;
+            margin-bottom: 2px;
+        }
+        
+        .play-count-label {
+            font-size: 14px;
+            opacity: 0.7;
+            font-weight: 500;
+        }
+        
+        .milestone {
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.15), rgba(255, 165, 0, 0.15));
+            border-left: 5px solid #FFD700;
+        }
+        
+        .milestone .rank {
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            animation: shimmer 2s ease-in-out infinite;
+        }
+        
+        @keyframes shimmer {
+            0%, 100% { transform: scale(1.1); }
+            50% { transform: scale(1.15); }
+        }
+        
+        .footer {
+            background: linear-gradient(135deg, #191414 0%, #0d0d0d 100%);
+            color: white;
+            text-align: center;
+            padding: 40px;
+            font-size: 14px;
+        }
+        
+        .footer-logo {
+            width: 120px;
+            margin-bottom: 20px;
+            opacity: 0.9;
+            filter: brightness(0) invert(1);
+        }
+        
+        .footer p {
+            margin-bottom: 8px;
+            opacity: 0.8;
+        }
+        
+        @media (max-width: 768px) {
+            .header h1 { font-size: 38px; }
+            .header p { font-size: 18px; }
+            .song-item { 
+                grid-template-columns: 60px 1fr 120px;
+                gap: 15px;
+                padding: 20px 25px;
+            }
+            .album { display: none; }
+            .rank { 
+                width: 40px;
+                height: 40px;
+                font-size: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <img src="https://storage.googleapis.com/pr-newsroom-wp/1/2023/05/Spotify_Primary_Logo_RGB_Green.png" alt="Spotify" class="spotify-logo">
+            <h1>All Time Classics</h1>
+            <p>你的音乐历史殿堂</p>
+        </div>
+        
+        <div class="stats-overview">
+            <h2 class="overview-title">音乐足迹</h2>
+            <p class="overview-text">
+                这些是陪伴你最久的旋律，见证着你音乐品味的变迁与坚持。<br>
+                从青春时光到现在，它们是你人生soundtrack中最珍贵的篇章。
+            </p>
+        </div>
+        
+        <div class="top-songs">
+            <h2 class="section-title">历史 Top 10</h2>
+            <div class="song-list">
+                <div class="song-item milestone">
+                    <div class="rank top-3">1</div>
+                    <div class="song-info">
+                        <h3>17さいのうた。</h3>
+                        <div class="artist">『ユイカ』</div>
+                        <div class="album">17さいのうた。- Single</div>
+                    </div>
+                    <div class="album">17さいのうた。- Single</div>
+                    <div class="play-count">
+                        <span class="play-count-number">5,136</span>
+                        <span class="play-count-label">遍</span>
+                    </div>
+                </div>
+                
+                <div class="song-item milestone">
+                    <div class="rank top-3">2</div>
+                    <div class="song-info">
+                        <h3>Merry-Go-Round of Life</h3>
+                        <div class="artist">Joe Hisaishi</div>
+                        <div class="album">Howl's Moving Castle (Original Soundtrack)</div>
+                    </div>
+                    <div class="album">Howl's Moving Castle (Original Soundtrack)</div>
+                    <div class="play-count">
+                        <span class="play-count-number">3,082</span>
+                        <span class="play-count-label">遍</span>
+                    </div>
+                </div>
+                
+                <div class="song-item milestone">
+                    <div class="rank top-3">3</div>
+                    <div class="song-info">
+                        <h3>打上花火</h3>
+                        <div class="artist">DAOKO, 米津玄师</div>
+                        <div class="album">打上花火 - Single</div>
+                    </div>
+                    <div class="album">打上花火 - Single</div>
+                    <div class="play-count">
+                        <span class="play-count-number">2,453</span>
+                        <span class="play-count-label">遍</span>
+                    </div>
+                </div>
+                
+                <div class="song-item">
+                    <div class="rank">4</div>
+                    <div class="song-info">
+                        <h3>Merry Christmas Mr. Lawrence</h3>
+                        <div class="artist">坂本龙一</div>
+                        <div class="album">Merry Christmas Mr. Lawrence</div>
+                    </div>
+                    <div class="album">Merry Christmas Mr. Lawrence</div>
+                    <div class="play-count">
+                        <span class="play-count-number">2,175</span>
+                        <span class="play-count-label">遍</span>
+                    </div>
+                </div>
+                
+                <div class="song-item">
+                    <div class="rank">5</div>
+                    <div class="song-info">
+                        <h3>たぶん</h3>
+                        <div class="artist">YOASOBI</div>
+                        <div class="album">THE BOOK</div>
+                    </div>
+                    <div class="album">THE BOOK</div>
+                    <div class="play-count">
+                        <span class="play-count-number">1,366</span>
+                        <span class="play-count-label">遍</span>
+                    </div>
+                </div>
+                
+                <div class="song-item">
+                    <div class="rank">6</div>
+                    <div class="song-info">
+                        <h3>容易受伤的女人</h3>
+                        <div class="artist">王菲</div>
+                        <div class="album">容易受伤的女人</div>
+                    </div>
+                    <div class="album">容易受伤的女人</div>
+                    <div class="play-count">
+                        <span class="play-count-number">975</span>
+                        <span class="play-count-label">遍</span>
+                    </div>
+                </div>
+                
+                <div class="song-item">
+                    <div class="rank">7</div>
+                    <div class="song-info">
+                        <h3>あの夢をなぞって</h3>
+                        <div class="artist">YOASOBI</div>
+                        <div class="album">THE BOOK</div>
+                    </div>
+                    <div class="album">THE BOOK</div>
+                    <div class="play-count">
+                        <span class="play-count-number">812</span>
+                        <span class="play-count-label">遍</span>
+                    </div>
+                </div>
+                
+                <div class="song-item">
+                    <div class="rank">8</div>
+                    <div class="song-info">
+                        <h3>遇见</h3>
+                        <div class="artist">孙燕姿</div>
+                        <div class="album">未完成</div>
+                    </div>
+                    <div class="album">未完成</div>
+                    <div class="play-count">
+                        <span class="play-count-number">703</span>
+                        <span class="play-count-label">遍</span>
+                    </div>
+                </div>
+                
+                <div class="song-item">
+                    <div class="rank">9</div>
+                    <div class="song-info">
+                        <h3>スパークル</h3>
+                        <div class="artist">Lilas</div>
+                        <div class="album">スパークル - Single</div>
+                    </div>
+                    <div class="album">スパークル - Single</div>
+                    <div class="play-count">
+                        <span class="play-count-number">651</span>
+                        <span class="play-count-label">遍</span>
+                    </div>
+                </div>
+                
+                <div class="song-item">
+                    <div class="rank">10</div>
+                    <div class="song-info">
+                        <h3>地球仪</h3>
+                        <div class="artist">米津玄师</div>
+                        <div class="album">STRAY SHEEP</div>
+                    </div>
+                    <div class="album">STRAY SHEEP</div>
+                    <div class="play-count">
+                        <span class="play-count-number">570</span>
+                        <span class="play-count-label">遍</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <img src="https://storage.googleapis.com/pr-newsroom-wp/1/2023/05/Spotify_Primary_Logo_RGB_Green.png" alt="Spotify" class="footer-logo">
+            <p>© 2025 Spotify AB. All rights reserved.</p>
+            <p>Your musical journey through the years</p>
+            <p>感谢这些永恒的旋律陪伴你的每一个时刻</p>
+        </div>
+    </div>
+</body>
+</html>
