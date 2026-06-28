@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>amlhdsan's homepage</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400;1,600&family=Inter:wght@300;400;500;600&family=Noto+Serif+SC:wght@300;400;500&display=swap" rel="stylesheet">
     <style>
         * {
@@ -14,6 +16,7 @@
 
         html {
             scroll-behavior: smooth;
+            scroll-snap-type: y mandatory;
         }
 
         body {
@@ -21,20 +24,21 @@
             overflow-x: hidden;
             background: #f5f5f7;
             color: #1d1d1f;
+            opacity: 0;
+            transition: opacity 0.4s ease;
         }
 
+        /* 核心优化：营造“看清又看不清”的朦胧感背景 */
         .background {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background-image: url('https://amlhdsan.github.io/photo/background.png');
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
+            background: url('https://amlhdsan.github.io/photo/background.png') center/cover no-repeat;
             z-index: -2;
-            filter: blur(0.5px);
+            filter: blur(6px); /* 适度的模糊，保留画面的色块与隐约线条 */
+            transform: scale(1.03); /* 消除边缘因模糊产生的白边 */
         }
 
         .background::after {
@@ -44,30 +48,30 @@
             left: 0;
             width: 100%;
             height: 100%;
+            /* 叠加一层柔和的微光，产生高档的磨砂玻璃透光感 */
             background: linear-gradient(
-                180deg,
-                rgba(245, 245, 247, 0.1) 0%,
-                rgba(245, 245, 247, 0.05) 30%,
-                rgba(245, 245, 247, 0.1) 70%,
-                rgba(245, 245, 247, 0.2) 100%
+                135deg,
+                rgba(245, 245, 247, 0.2) 0%,
+                rgba(230, 235, 245, 0.1) 40%,
+                rgba(245, 245, 247, 0.3) 100%
             );
-            z-index: -1;
         }
 
         .section {
-            min-height: 100vh;
+            height: 100vh;
+            height: calc(var(--vh, 1vh) * 100);
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            padding: 60px 20px;
+            padding: 40px 20px;
             position: relative;
+            scroll-snap-align: start;
+            scroll-snap-stop: always;
         }
 
         .hero-section {
             text-align: center;
-            opacity: 1;
-            transform: translateY(0);
         }
 
         .title {
@@ -81,74 +85,33 @@
             background-clip: text;
             margin-bottom: 40px;
             letter-spacing: -0.02em;
-            text-shadow: 0 2px 15px rgba(0, 122, 255, 0.15);
-            animation: titleFloat 8s ease-in-out infinite;
-            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-        }
-
-        .title:hover {
-            transform: translateY(-3px);
-            text-shadow: 0 8px 25px rgba(0, 122, 255, 0.25);
+            animation: titleFloat 6s ease-in-out infinite;
         }
 
         @keyframes titleFloat {
-            0%, 100% {
-                transform: translateY(0px);
-            }
-            50% {
-                transform: translateY(-5px);
-            }
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-4px); }
         }
 
         .signature {
-            background: linear-gradient(135deg, 
-                rgba(135, 206, 250, 0.15) 0%, 
-                rgba(173, 216, 230, 0.12) 30%, 
-                rgba(176, 224, 230, 0.1) 70%, 
-                rgba(135, 206, 250, 0.15) 100%
-            );
-            backdrop-filter: blur(40px) saturate(200%);
-            -webkit-backdrop-filter: blur(40px) saturate(200%);
-            border: 1px solid rgba(135, 206, 250, 0.3);
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(20px) saturate(160%);
+            -webkit-backdrop-filter: blur(20px) saturate(160%);
+            border: 1px solid rgba(255, 255, 255, 0.3);
             border-radius: 24px;
-            padding: 35px 45px;
+            padding: 30px 45px;
             max-width: 600px;
-            font-size: 1.2rem;
+            font-size: 1.15rem;
             line-height: 1.8;
             text-align: center;
             color: rgba(29, 29, 31, 0.85);
-            box-shadow: 
-                0 8px 32px rgba(135, 206, 250, 0.15),
-                inset 0 1px 0 rgba(255, 255, 255, 0.4);
-            transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-            animation: signatureFloat 6s ease-in-out infinite;
-            transform: translateZ(0);
-            will-change: transform;
-        }
-
-        .signature:hover {
-            transform: translateY(-8px) translateZ(0);
-            background: linear-gradient(135deg, 
-                rgba(135, 206, 250, 0.2) 0%, 
-                rgba(173, 216, 230, 0.17) 30%, 
-                rgba(176, 224, 230, 0.15) 70%, 
-                rgba(135, 206, 250, 0.2) 100%
-            );
-            backdrop-filter: blur(50px) saturate(220%);
-            -webkit-backdrop-filter: blur(50px) saturate(220%);
-            box-shadow: 
-                0 16px 48px rgba(135, 206, 250, 0.2),
-                inset 0 1px 0 rgba(255, 255, 255, 0.5);
-            border-color: rgba(135, 206, 250, 0.4);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.04);
+            animation: signatureFloat 5s ease-in-out infinite;
         }
 
         @keyframes signatureFloat {
-            0%, 100% {
-                transform: translateY(0px) translateZ(0);
-            }
-            50% {
-                transform: translateY(-6px) translateZ(0);
-            }
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-3px); }
         }
 
         .scroll-indicator {
@@ -156,8 +119,8 @@
             bottom: 30px;
             left: 50%;
             transform: translateX(-50%);
-            color: rgba(29, 29, 31, 0.6);
-            font-size: 0.9rem;
+            color: rgba(29, 29, 31, 0.5);
+            font-size: 0.85rem;
             text-align: center;
             animation: bounce 2s infinite;
         }
@@ -165,184 +128,161 @@
         .scroll-indicator::after {
             content: '↓';
             display: block;
-            font-size: 1.5rem;
-            margin-top: 5px;
+            font-size: 1.2rem;
+            margin-top: 4px;
         }
 
         @keyframes bounce {
-            0%, 20%, 50%, 80%, 100% {
-                transform: translateX(-50%) translateY(0);
-            }
-            40% {
-                transform: translateX(-50%) translateY(-10px);
-            }
-            60% {
-                transform: translateX(-50%) translateY(-5px);
-            }
+            0%, 20%, 50%, 80%, 100% { transform: translateX(-50%) translateY(0); }
+            40% { transform: translateX(-50%) translateY(-6px); }
+            60% { transform: translateX(-50%) translateY(-3px); }
         }
 
-        .content-section {
-            opacity: 0;
-            transform: translateY(50px);
-            transition: all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        .content-container {
+            max-height: 85vh;
+            overflow-y: auto;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 10px;
         }
 
-        .content-section.visible {
-            opacity: 1;
-            transform: translateY(0);
+        .content-container::-webkit-scrollbar {
+            width: 4px;
+        }
+        .content-container::-webkit-scrollbar-thumb {
+            background: rgba(0,0,0,0.1);
+            border-radius: 2px;
         }
 
         .section-title {
-            font-size: clamp(1.8rem, 5vw, 2.5rem);
+            font-size: clamp(1.8rem, 5vw, 2.4rem);
             font-weight: 600;
             text-align: center;
-            margin-bottom: 50px;
+            margin-bottom: 35px;
             background: linear-gradient(135deg, #007AFF 0%, #5856D6 50%, #AF52DE 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
         }
 
+        /* 新增：个人简介卡片样式 */
+        .profile-card {
+            background: rgba(255, 255, 255, 0.18);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 28px;
+            padding: 40px;
+            max-width: 650px;
+            width: 100%;
+            box-shadow: 0 10px 35px rgba(0, 0, 0, 0.03);
+            text-align: left;
+        }
+
+        .profile-text {
+            font-size: 1.05rem;
+            line-height: 1.8;
+            color: rgba(29, 29, 31, 0.8);
+            margin-bottom: 25px;
+        }
+
+        .profile-text strong {
+            color: #1d1d1f;
+            font-weight: 600;
+        }
+
+        .profile-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .tag {
+            padding: 8px 16px;
+            background: rgba(255, 255, 255, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            border-radius: 50px;
+            font-size: 0.88rem;
+            color: rgba(29, 29, 31, 0.75);
+            font-weight: 500;
+            transition: all 0.25s ease;
+        }
+
+        .tag:hover {
+            background: rgba(0, 122, 255, 0.08);
+            border-color: rgba(0, 122, 255, 0.2);
+            color: #007AFF;
+            transform: scale(1.03);
+        }
+
         .social-container {
             display: flex;
             flex-direction: column;
-            gap: 25px;
+            gap: 16px;
             max-width: 500px;
             width: 100%;
         }
 
         .social-item {
-            background: linear-gradient(135deg, 
-                rgba(135, 206, 250, 0.12) 0%, 
-                rgba(173, 216, 230, 0.1) 50%, 
-                rgba(176, 224, 230, 0.08) 100%
-            );
-            backdrop-filter: blur(35px) saturate(180%);
-            -webkit-backdrop-filter: blur(35px) saturate(180%);
-            border: 1px solid rgba(135, 206, 250, 0.25);
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.25);
             border-radius: 20px;
-            padding: 25px 30px;
-            transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-            position: relative;
-            overflow: hidden;
-            transform: translateZ(0);
+            padding: 18px 25px;
+            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        .social-item:hover, .project-card:hover {
             will-change: transform;
-        }
-
-        .social-item::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, 
-                transparent, 
-                rgba(0, 122, 255, 0.08), 
-                transparent
-            );
-            transition: left 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-        }
-
-        .social-item:hover::before {
-            left: 100%;
-        }
-
-        .social-item:hover {
-            transform: translateY(-6px) scale(1.02) translateZ(0);
-            background: linear-gradient(135deg, 
-                rgba(135, 206, 250, 0.18) 0%, 
-                rgba(173, 216, 230, 0.15) 50%, 
-                rgba(176, 224, 230, 0.12) 100%
-            );
-            backdrop-filter: blur(45px) saturate(200%);
-            -webkit-backdrop-filter: blur(45px) saturate(200%);
-            border-color: rgba(0, 122, 255, 0.35);
-            box-shadow: 0 12px 40px rgba(0, 122, 255, 0.15);
+            transform: translateY(-4px);
+            background: rgba(255, 255, 255, 0.25);
+            border-color: rgba(0, 122, 255, 0.3);
+            box-shadow: 0 8px 24px rgba(0, 122, 255, 0.08);
         }
 
         .social-label {
-            font-size: 1rem;
-            color: rgba(29, 29, 31, 0.6);
-            margin-bottom: 8px;
-            font-weight: 400;
+            font-size: 0.9rem;
+            color: rgba(29, 29, 31, 0.55);
+            margin-bottom: 3px;
         }
 
         .social-link {
             color: rgba(29, 29, 31, 0.9);
             text-decoration: none;
-            font-size: 1.1rem;
+            font-size: 1.05rem;
             font-weight: 500;
             display: block;
-            transition: color 0.3s ease;
+            transition: color 0.2s ease;
         }
 
-        .social-link:hover {
-            color: #007AFF;
-        }
+        .social-link:hover { color: #007AFF; }
 
         .projects-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 25px;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
             max-width: 1000px;
             width: 100%;
         }
 
         .project-card {
-            background: linear-gradient(135deg, 
-                rgba(135, 206, 250, 0.08) 0%, 
-                rgba(173, 216, 230, 0.06) 50%, 
-                rgba(176, 224, 230, 0.04) 100%
-            );
-            backdrop-filter: blur(40px) saturate(160%);
-            -webkit-backdrop-filter: blur(40px) saturate(160%);
-            border: 1px solid rgba(135, 206, 250, 0.2);
+            background: rgba(255, 255, 255, 0.12);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
             border-radius: 24px;
-            padding: 30px;
-            transition: all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-            position: relative;
+            padding: 25px;
+            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
             cursor: pointer;
-            overflow: hidden;
-            transform: translateZ(0);
-            will-change: transform;
-        }
-
-        .project-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 2px;
-            background: linear-gradient(90deg, #007AFF, #5856D6, #AF52DE);
-            transform: translateX(-100%);
-            transition: transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-        }
-
-        .project-card:hover::before {
-            transform: translateX(0);
-        }
-
-        .project-card:hover {
-            transform: translateY(-12px) translateZ(0);
-            background: linear-gradient(135deg, 
-                rgba(135, 206, 250, 0.15) 0%, 
-                rgba(173, 216, 230, 0.12) 50%, 
-                rgba(176, 224, 230, 0.1) 100%
-            );
-            backdrop-filter: blur(50px) saturate(200%);
-            -webkit-backdrop-filter: blur(50px) saturate(200%);
-            border-color: rgba(0, 122, 255, 0.3);
-            box-shadow: 
-                0 20px 60px rgba(0, 122, 255, 0.12),
-                0 0 0 1px rgba(0, 122, 255, 0.08);
         }
 
         .project-title {
-            font-size: 1.3rem;
+            font-size: 1.2rem;
             font-weight: 600;
-            margin-bottom: 15px;
+            margin-bottom: 10px;
             background: linear-gradient(135deg, #007AFF 0%, #5856D6 50%, #AF52DE 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
@@ -350,65 +290,47 @@
         }
 
         .project-description {
-            color: rgba(29, 29, 31, 0.7);
+            color: rgba(29, 29, 31, 0.65);
             line-height: 1.6;
-            font-size: 0.95rem;
+            font-size: 0.92rem;
         }
 
         .project-status {
             margin-top: 15px;
-            padding: 8px 15px;
-            background: linear-gradient(135deg, 
-                rgba(0, 122, 255, 0.08) 0%, 
-                rgba(88, 86, 214, 0.06) 100%
-            );
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(0, 122, 255, 0.2);
+            padding: 8px 12px;
+            background: rgba(0, 122, 255, 0.04);
+            border: 1px solid rgba(0, 122, 255, 0.12);
             border-radius: 12px;
-            font-size: 0.85rem;
-            color: rgba(0, 122, 255, 0.9);
-            text-align: center;
+            font-size: 0.82rem;
+            color: rgba(0, 122, 255, 0.85);
         }
 
         .music-player {
             position: fixed;
             bottom: 30px;
             right: 30px;
-            background: linear-gradient(135deg, 
-                rgba(135, 206, 250, 0.15) 0%, 
-                rgba(173, 216, 230, 0.12) 50%, 
-                rgba(176, 224, 230, 0.1) 100%
-            );
-            backdrop-filter: blur(40px) saturate(180%);
-            -webkit-backdrop-filter: blur(40px) saturate(180%);
-            border: 1px solid rgba(135, 206, 250, 0.3);
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
             border-radius: 60px;
-            padding: 15px 25px;
+            padding: 10px 20px;
             display: flex;
             align-items: center;
-            gap: 15px;
-            box-shadow: 0 8px 32px rgba(0, 122, 255, 0.1);
-            transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            gap: 12px;
+            box-shadow: 0 6px 24px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
             z-index: 1000;
-            transform: translateZ(0);
         }
 
         .music-player:hover {
-            transform: translateY(-4px) translateZ(0);
-            backdrop-filter: blur(50px) saturate(200%);
-            -webkit-backdrop-filter: blur(50px) saturate(200%);
-            box-shadow: 0 16px 48px rgba(0, 122, 255, 0.15);
-            background: linear-gradient(135deg, 
-                rgba(135, 206, 250, 0.2) 0%, 
-                rgba(173, 216, 230, 0.17) 50%, 
-                rgba(176, 224, 230, 0.15) 100%
-            );
+            transform: translateY(-2px);
+            background: rgba(255, 255, 255, 0.3);
         }
 
         .play-btn {
-            width: 45px;
-            height: 45px;
+            width: 36px;
+            height: 36px;
             border: none;
             background: linear-gradient(135deg, #007AFF 0%, #5856D6 100%);
             border-radius: 50%;
@@ -417,105 +339,48 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-            font-size: 16px;
-            box-shadow: 0 4px 20px rgba(0, 122, 255, 0.3);
-        }
-
-        .play-btn:hover {
-            transform: scale(1.1);
-            box-shadow: 0 6px 25px rgba(0, 122, 255, 0.4);
-        }
-
-        .music-info {
-            font-size: 0.9rem;
-            color: rgba(29, 29, 31, 0.8);
-            white-space: nowrap;
-            font-weight: 500;
-        }
-
-        @media (max-width: 768px) {
-            .section {
-                padding: 40px 15px;
-            }
-
-            .signature {
-                padding: 25px 30px;
-                font-size: 1.1rem;
-            }
-
-            .projects-grid {
-                grid-template-columns: 1fr;
-                gap: 20px;
-            }
-
-            .social-container {
-                max-width: 100%;
-            }
-
-            .music-player {
-                bottom: 20px;
-                right: 20px;
-                padding: 12px 20px;
-            }
-
-            .music-info {
-                font-size: 0.8rem;
-            }
-
-            .play-btn {
-                width: 40px;
-                height: 40px;
-                font-size: 14px;
-            }
+            font-size: 12px;
+            box-shadow: 0 3px 10px rgba(0, 122, 255, 0.2);
         }
 
         .copyright {
             position: fixed; bottom: 1rem; left: 1rem; font-size: .75rem; font-family: 'Fira Code', monospace;
-            backdrop-filter: blur(10px); background: rgba(0,0,0,.2); padding: .5rem 1rem; border-radius: 20px; border: 1px solid rgba(255,255,255,.1);
-        }
-        body.light-mode .copyright { background: rgba(255,255,255,.5); color: rgba(0,0,0,.7); border: 1px solid rgba(0,0,0,.1); }
-
-
-        @media (max-width: 480px) {
-            .music-info {
-                display: none;
-            }
+            backdrop-filter: blur(10px); background: rgba(0,0,0,.12); color: #fff; padding: .4rem .8rem; border-radius: 20px; border: 1px solid rgba(255,255,255,.1); z-index: 999;
         }
 
-        /* 滚动动画 */
+        /* 动画逻辑 */
         .fade-in-up {
             opacity: 0;
-            transform: translateY(40px);
-            transition: all 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            transform: translateY(15px) translateZ(0);
+            transition: opacity 0.5s ease, transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
         }
 
         .fade-in-up.visible {
             opacity: 1;
-            transform: translateY(0);
+            transform: translateY(0) translateZ(0);
         }
 
-        .stagger-1 { transition-delay: 0.1s; }
-        .stagger-2 { transition-delay: 0.2s; }
-        .stagger-3 { transition-delay: 0.3s; }
-        .stagger-4 { transition-delay: 0.4s; }
-        .stagger-5 { transition-delay: 0.5s; }
-        .stagger-6 { transition-delay: 0.6s; }
+        .stagger-1 { transition-delay: 0.04s; }
+        .stagger-2 { transition-delay: 0.08s; }
+        .stagger-3 { transition-delay: 0.12s; }
+        .stagger-4 { transition-delay: 0.16s; }
 
-        /* 硬件加速和性能优化 */
-        .signature,
-        .social-item,
-        .project-card,
-        .music-player {
-            transform: translateZ(0);
-            will-change: transform;
+        @media (max-width: 768px) {
+            .section { padding: 20px 12px; }
+            .signature { padding: 20px 25px; font-size: 1.05rem; }
+            .profile-card { padding: 25px; }
+            .projects-grid { grid-template-columns: 1fr; }
+            .music-player { bottom: 20px; right: 20px; }
+        }
+
+        @media (max-width: 480px) {
+            .music-info { display: none; }
         }
     </style>
 </head>
 <body>
     <div class="background"></div>
 
-    <!-- 首屏：标题和签名 -->
     <section class="section hero-section">
         <h1 class="title">amlhdsan's homepage</h1>
         <div class="signature">
@@ -524,91 +389,110 @@
         <div class="scroll-indicator">向下滑动探索更多</div>
     </section>
 
-    <section class="section content-section">
-        <h2 class="section-title">My Organization</h2>
-        <div class="social-container">
-            <div class="social-item fade-in-up stagger-1">
-                <div class="social-label">辅礽考试院</div>
-                <a href="https://furengaoe.github.io/" class="social-link" target="_blank">官网</a>
+    <section class="section">
+        <div class="content-container">
+            <h2 class="section-title">PROFILE</h2>
+            <div class="profile-card fade-in-up stagger-1">
+                <p class="profile-text">
+                    你好，我是 <strong>amlhdsan</strong>。一个游走在逻辑确定性与光影艺术之间的探索者。<br><br>
+                    白天，我在解析几何、数论与复杂的算法模型中寻找最优解；夜晚，我更愿意沉浸在老电影的胶片质感或立直麻将的攻防博弈中。代码是丈量世界的工具，而生活本身，才是那部永远拍不完的电影。
+                </p>
+                <div class="profile-tags">
+                    <span class="tag">📐 高中数学竞赛生</span>
+                    <span class="tag">💻 OI 选手 / 算法爱好者</span>
+                    <span class="tag">🎬 电影原教旨主义迷</span>
+                    <span class="tag">🀄️ 雀魂 & 天凤玩家</span>
+                </div>
             </div>
         </div>
     </section>
 
-    <!-- 个人链接区域 -->
-    <section class="section content-section">
-        <h2 class="section-title">各站</h2>
-        <div class="social-container">
-            <div class="social-item fade-in-up stagger-1">
-                <div class="social-label">Github</div>
-                <a href="https://github.com/amlhdsan" class="social-link" target="_blank">Github</a>
-            </div>
-            <div class="social-item fade-in-up stagger-2">
-                <div class="social-label">知乎</div>
-                <a href="https://www.zhihu.com/people/50-15-97-52-51" class="social-link" target="_blank">知乎</a>
-            </div>
-
-            <div class="social-item fade-in-up stagger-3">
-                <div class="social-label">luogu</div>
-                <a href="https://www.luogu.com.cn/user/576387" class="social-link" target="_blank">luogu</a>
-            </div>
-
-            <div class="social-item fade-in-up stagger-4">
-                <div class="social-label">CSDN</div>
-                <a href="https://blog.csdn.net/MYB20091111?spm=1000.2115.3001.5343" class="social-link" target="_blank">csdn</a>
-            </div>
-
-            <div class="social-item fade-in-up stagger-4">
-                <div class="social-label">bilibili</div>
-                <a href="https://space.bilibili.com/1197495893?spm_id_from=..0.0" class="social-link" target="_blank">bilibili</a>
+    <section class="section">
+        <div class="content-container">
+            <h2 class="section-title">My Organization</h2>
+            <div class="social-container">
+                <div class="social-item fade-in-up stagger-1">
+                    <div class="social-label">辅礽考试院</div>
+                    <a href="https://furengaoe.github.io/" class="social-link" target="_blank">官网</a>
+                </div>
             </div>
         </div>
     </section>
 
-    <!-- 个人简介区域 -->
-    <section class="section content-section">
-        <h2 class="section-title">菜鸡成就</h2>
-        <div class="social-container">
-            <div class="social-item fade-in-up stagger-1">
-                <div class="social-label">2023 CSP-J 一等奖</div>
-            </div>
-            <div class="social-item fade-in-up stagger-1">
-                <div class="social-label">2024 CSP-S 二等奖</div>
-                <div class="social-label">2024 NOIP 二等奖</div>
-            </div>
-            <div class="social-item fade-in-up stagger-1">
-                <div class="social-label">2025 全国高中数学联赛 一等奖</div>
-                <div class="social-label">2025 CSP-S 一等奖</div>
-                <div class="social-label">2025 NOIP 二等奖</div>
+    <section class="section">
+        <div class="content-container">
+            <h2 class="section-title">各站</h2>
+            <div class="social-container">
+                <div class="social-item fade-in-up stagger-1">
+                    <div class="social-label">Github</div>
+                    <a href="https://github.com/amlhdsan" class="social-link" target="_blank">Github</a>
+                </div>
+                <div class="social-item fade-in-up stagger-2">
+                    <div class="social-label">知乎</div>
+                    <a href="https://www.zhihu.com/people/50-15-97-52-51" class="social-link" target="_blank">知乎</a>
+                </div>
+                <div class="social-item fade-in-up stagger-3">
+                    <div class="social-label">luogu</div>
+                    <a href="https://www.luogu.com.cn/user/576387" class="social-link" target="_blank">luogu</a>
+                </div>
+                <div class="social-item fade-in-up stagger-4">
+                    <div class="social-label">CSDN</div>
+                    <a href="https://blog.csdn.net/MYB20091111?spm=1000.2115.3001.5343" class="social-link" target="_blank">csdn</a>
+                </div>
+                <div class="social-item fade-in-up stagger-4">
+                    <div class="social-label">bilibili</div>
+                    <a href="https://space.bilibili.com/1197495893?spm_id_from=..0.0" class="social-link" target="_blank">bilibili</a>
+                </div>
             </div>
         </div>
     </section>
 
-    <!-- 项目展示区域 -->
-    <section class="section content-section">
-        <h2 class="section-title">杂项</h2>
-        <div class="projects-grid">
-            <div class="project-card fade-in-up stagger-2" onclick="location.href='https://www.cnblogs.com/amlhdsan'">
-                <h3 class="project-title">My Blog</h3>
-                <p class="project-description">包括一些随笔，文章，题解等杂七杂八的东西</p>
-                <div class="project-status">懒得搞其他的了，感觉 cnblogs 的功能还行，就直接托管了。很多文章都在知乎洛谷csdn之类的上面，可以去看看。都叫 amlhdsan</div>
+    <section class="section">
+        <div class="content-container">
+            <h2 class="section-title">菜鸡成就</h2>
+            <div class="social-container">
+                <div class="social-item fade-in-up stagger-1">
+                    <div class="social-label">2023 CSP-J 一等奖</div>
+                </div>
+                <div class="social-item fade-in-up stagger-2">
+                    <div class="social-label">2024 CSP-S 二等奖</div>
+                    <div class="social-label">2024 NOIP 二等奖</div>
+                </div>
+                <div class="social-item fade-in-up stagger-3">
+                    <div class="social-label">2025 全国高中数学联赛 一等奖</div>
+                    <div class="social-label">2025 CSP-S 一等奖</div>
+                    <div class="social-label">2025 NOIP 二等奖</div>
+                </div>
             </div>
-            
-            <div class="project-card fade-in-up stagger-3" onclick="location.href=''">
-                <h3 class="project-title">我的影音档案馆</h3>
-                <p class="project-description">收藏那些触动心灵的画面与声音，每一帧都是时光的印记</p>
-                <div class="project-status">正在整理中，敬请期待</div>
-            </div>  
-            <div class="project-card fade-in-up stagger-2" onclick="location.href='https://amlhdsan.github.io/majhong/index.html'">
-                <h3 class="project-title">Majhong</h3>
-                <p class="project-description">立直麻将</p>
-                <div class="project-status">天鳳 & 雀魂</div>
+        </div>
+    </section>
+
+    <section class="section">
+        <div class="content-container">
+            <h2 class="section-title">杂项</h2>
+            <div class="projects-grid">
+                <div class="project-card fade-in-up stagger-1" onclick="window.open('https://www.cnblogs.com/amlhdsan', '_blank')">
+                    <h3 class="project-title">My Blog</h3>
+                    <p class="project-description">包括一些随笔，文章，题解等杂七杂八的东西</p>
+                    <div class="project-status">直接托管于 cnblogs。许多文章也在知乎、洛谷、CSDN 上同步更新，搜索 amlhdsan 即可。</div>
+                </div>
+                
+                <div class="project-card fade-in-up stagger-2">
+                    <h3 class="project-title">我的影音档案馆</h3>
+                    <p class="project-description">收藏那些触动心灵的画面与声音，每一帧都是时光的印记</p>
+                    <div class="project-status">正在整理中，敬请期待</div>
+                </div>  
+                <div class="project-card fade-in-up stagger-3" onclick="window.open('https://amlhdsan.github.io/majhong/index.html', '_blank')">
+                    <h3 class="project-title">Majhong</h3>
+                    <p class="project-description">立直麻将</p>
+                    <div class="project-status">天鳳 & 雀魂</div>
+                </div>
             </div>
         </div>
     </section>
 
     <div class="copyright">© 2021 - 2026 amlhdsan. All rights reserved.</div>
 
-    <!-- 音乐播放器 -->
     <div class="music-player">
         <button class="play-btn" onclick="toggleMusic()">
             <span id="playIcon">▶</span>
@@ -635,129 +519,29 @@
             isPlaying = !isPlaying;
         }
 
-        // 优化的滚动动画观察器
-        const observerOptions = {
-            threshold: 0.15,
-            rootMargin: '0px 0px -100px 0px'
-        };
-
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
                     entry.target.classList.add('visible');
+                    observer.unobserve(entry.target);
                 }
             });
-        }, observerOptions);
+        }, { threshold: 0.08 });
 
-        // 观察需要动画的元素
-        document.querySelectorAll('.content-section, .fade-in-up').forEach(el => {
-            observer.observe(el);
+        document.querySelectorAll('.fade-in-up').forEach(el => observer.observe(el));
+
+        function setVH() {
+            document.documentElement.style.setProperty('--vh', `${window.innerHeight * 0.01}px`);
+        }
+        setVH();
+        let resizeTimeout;
+        window.addEventListener('resize', () => {
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(setVH, 100);
         });
 
-        // 优化的滚动处理
-        let isScrolling = false;
-        
-        document.addEventListener('wheel', (e) => {
-            if (isScrolling) return;
-            
-            if (Math.abs(e.deltaY) > 30) {
-                e.preventDefault();
-                isScrolling = true;
-                
-                const sections = document.querySelectorAll('.section');
-                let currentSection = 0;
-                
-                sections.forEach((section, index) => {
-                    const rect = section.getBoundingClientRect();
-                    if (rect.top <= window.innerHeight / 2 && rect.bottom >= window.innerHeight / 2) {
-                        currentSection = index;
-                    }
-                });
-
-                if (e.deltaY > 0 && currentSection < sections.length - 1) {
-                    sections[currentSection + 1].scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'start'
-                    });
-                } else if (e.deltaY < 0 && currentSection > 0) {
-                    sections[currentSection - 1].scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'start'
-                    });
-                }
-                
-                setTimeout(() => {
-                    isScrolling = false;
-                }, 800);
-            }
-        }, { passive: false });
-
-        // 优化的移动端触摸处理
-        let touchStartY = 0;
-        let touchEndY = 0;
-        let isTouching = false;
-
-        document.addEventListener('touchstart', (e) => {
-            touchStartY = e.changedTouches[0].screenY;
-        }, { passive: true });
-
-        document.addEventListener('touchend', (e) => {
-            if (isTouching) return;
-            
-            touchEndY = e.changedTouches[0].screenY;
-            handleSwipe();
-        }, { passive: true });
-
-        function handleSwipe() {
-            const swipeThreshold = 80;
-            const diff = touchStartY - touchEndY;
-
-            if (Math.abs(diff) > swipeThreshold) {
-                isTouching = true;
-                
-                const sections = document.querySelectorAll('.section');
-                let currentSection = 0;
-                
-                sections.forEach((section, index) => {
-                    const rect = section.getBoundingClientRect();
-                    if (rect.top <= window.innerHeight / 2 && rect.bottom >= window.innerHeight / 2) {
-                        currentSection = index;
-                    }
-                });
-
-                if (diff > 0 && currentSection < sections.length - 1) {
-                    sections[currentSection + 1].scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'start'
-                    });
-                } else if (diff < 0 && currentSection > 0) {
-                    sections[currentSection - 1].scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'start'
-                    });
-                }
-                
-                setTimeout(() => {
-                    isTouching = false;
-                }, 800);
-            }
-        }
-
-        // 视口高度处理
-        function setVH() {
-            let vh = window.innerHeight * 0.01;
-            document.documentElement.style.setProperty('--vh', `${vh}px`);
-        }
-
-        setVH();
-        window.addEventListener('resize', setVH);
-
-        // 预加载优化
         document.addEventListener('DOMContentLoaded', () => {
-            // 预热动画
-            requestAnimationFrame(() => {
-                document.body.style.opacity = '1';
-            });
+            document.body.style.opacity = '1';
         });
     </script>
 </body>
