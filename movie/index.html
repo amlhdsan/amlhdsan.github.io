@@ -1,1 +1,363 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>电影殿堂 for amlhdsan</title>
+    <style>
+        /* 基础重置与紫金渐变背景 */
+        body {
+            margin: 0;
+            padding: 0;
+            /* 学术风范优先使用衬线体（宋体、Georgia等） */
+            font-family: 'Georgia', 'Songti SC', 'STSong', 'SimSun', serif;
+            background: linear-gradient(135deg, #1a0026 0%, #4a154b 50%, #8c7323 100%);
+            background-attachment: fixed;
+            color: #ffffff;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
 
+        /* 头部标题（学术典雅风） */
+        header {
+            text-align: center;
+            padding: 100px 20px 60px;
+            letter-spacing: 3px;
+        }
+        header h1 {
+            font-size: 3em;
+            margin: 0;
+            font-weight: 700;
+            border-bottom: 1px solid rgba(212, 175, 55, 0.4);
+            display: inline-block;
+            padding-bottom: 15px;
+        }
+        header p {
+            font-size: 1.1em;
+            color: rgba(255, 255, 255, 0.7);
+            margin-top: 20px;
+            font-style: italic;
+        }
+
+        /* 内容容器 */
+        .container {
+            max-width: 1050px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* 灵动毛玻璃卡片（学术风：线条更细腻，减少大圆角） */
+        .movie-card {
+            display: flex;
+            background: rgba(255, 255, 255, 0.06);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 4px; /* 学术风采用小圆角/直角，更显严谨 */
+            margin-bottom: 80px;
+            padding: 50px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+            
+            /* 滚动渐出动画初始状态 */
+            opacity: 0;
+            transform: translateY(60px);
+            transition: opacity 1s cubic-bezier(0.1, 0.8, 0.25, 1), transform 1s cubic-bezier(0.1, 0.8, 0.25, 1);
+        }
+
+        /* 动画激活状态 */
+        .movie-card.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* 交错排版 */
+        .movie-card.odd {
+            flex-direction: row-reverse;
+        }
+        .movie-card.even {
+            flex-direction: row;
+        }
+
+        /* 海报样式 */
+        .movie-poster {
+            width: 300px;
+            height: 440px;
+            border-radius: 2px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            object-fit: cover;
+            flex-shrink: 0;
+            transition: transform 0.4s ease;
+        }
+        .movie-poster:hover {
+            transform: scale(1.02);
+        }
+
+        /* 文字内容区 */
+        .movie-content {
+            padding: 0 60px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            flex-grow: 1;
+        }
+
+        /* 古典学术风标签 */
+        .rank-badge {
+            display: inline-block;
+            border: 1px solid #d4af37;
+            color: #d4af37;
+            font-size: 0.9em;
+            letter-spacing: 2px;
+            padding: 3px 12px;
+            margin-bottom: 20px;
+            align-self: flex-start;
+        }
+
+        /* 电影原语种名称 */
+        .movie-title-native {
+            font-size: 2.4em;
+            font-weight: 600;
+            margin: 0 0 8px 0;
+            line-height: 1.3;
+            color: #ffffff;
+        }
+
+        /* 灰色中文名称 */
+        .movie-title-zh {
+            color: rgba(255, 255, 255, 0.45); 
+            font-size: 1.2em;
+            margin: 0 0 25px 0;
+            font-weight: 400;
+            letter-spacing: 1px;
+        }
+
+        /* 电影元数据（学术文献感排版） */
+        .movie-meta {
+            font-size: 0.95em;
+            color: rgba(255, 255, 255, 0.85);
+            margin-bottom: 30px;
+            line-height: 2;
+            border-top: 1px dashed rgba(255, 255, 255, 0.15);
+            border-bottom: 1px dashed rgba(255, 255, 255, 0.15);
+            padding: 15px 0;
+        }
+        .movie-meta span {
+            display: block;
+        }
+        .movie-meta strong {
+            color: #d4af37;
+            font-weight: normal;
+            margin-right: 5px;
+        }
+
+        /* 原文台词样式 */
+        .movie-quote {
+            font-size: 1.1em;
+            line-height: 1.8;
+            color: rgba(255, 255, 255, 0.95);
+            border-left: 3px solid #d4af37;
+            padding-left: 20px;
+            margin: 0;
+        }
+
+        /* 响应式适配 */
+        @media (max-width: 900px) {
+            .movie-card.odd, .movie-card.even {
+                flex-direction: column;
+                padding: 35px;
+            }
+            .movie-content {
+                padding: 40px 0 0 0;
+            }
+            .movie-poster {
+                width: 100%;
+                max-width: 320px;
+                height: auto;
+                margin: 0 auto;
+            }
+            .movie-title-native {
+                font-size: 2em;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>電影殿堂 for amlhdsan</h1>
+        <p>— 經典映画の學術誌評與時光留影 —</p>
+    </header>
+
+    <div class="container">
+        
+        <div class="movie-card odd">
+            <img src="https://amlhdsan.github.io/movie/photo/1.jpeg" alt="Modern Times" class="movie-poster" onerror="this.src='https://via.placeholder.com/300x440/2c003e/d4af37?text=Top+1+Poster'">
+            <div class="movie-content">
+                <div class="rank-badge">TOP 01</div>
+                <h2 class="movie-title-native">Modern Times</h2>
+                <h3 class="movie-title-zh">摩登时代</h3>
+                <div class="movie-meta">
+                    <span><strong>年份：</strong> 1936</span>
+                    <span><strong>导演：</strong> Charlie Chaplin</span>
+                    <span><strong>主演：</strong> Charlie Chaplin, Paulette Goddard</span>
+                </div>
+                <blockquote class="movie-quote">“Life is a tragedy when seen in close-up, but a comedy in long-shot.”</blockquote>
+            </div>
+        </div>
+
+        <div class="movie-card even">
+            <img src="https://amlhdsan.github.io/movie/photo/2.jpeg" alt="蛍火の杜へ" class="movie-poster" onerror="this.src='https://via.placeholder.com/300x440/2c003e/d4af37?text=Top+2+Poster'">
+            <div class="movie-content">
+                <div class="rank-badge">TOP 02</div>
+                <h2 class="movie-title-native">蛍火の杜へ</h2>
+                <h3 class="movie-title-zh">萤火之森</h3>
+                <div class="movie-meta">
+                    <span><strong>製作年：</strong> 2011</span>
+                    <span><strong>監督：</strong> 大森貴弘</span>
+                    <span><strong>声の出演：</strong> 佐倉綾音、内山昂輝</span>
+                </div>
+                <blockquote class="movie-quote">「時間の流れるのは早くて、でも、一緒に過ごした思い出は、いつまでも消えない温かさとして残る。」</blockquote>
+            </div>
+        </div>
+
+        <div class="movie-card odd">
+            <img src="https://amlhdsan.github.io/movie/photo/3.jpeg" alt="Intouchables" class="movie-poster" onerror="this.src='https://via.placeholder.com/300x440/2c003e/d4af37?text=Top+3+Poster'">
+            <div class="movie-content">
+                <div class="rank-badge">TOP 03</div>
+                <h2 class="movie-title-native">Intouchable</h2>
+                <h3 class="movie-title-zh">触不可及</h3>
+                <div class="movie-meta">
+                    <span><strong>Année：</strong> 2011</span>
+                    <span><strong>Réalisation：</strong> Olivier Nakache, Éric Toledano</span>
+                    <span><strong>Acteurs：</strong> François Cluzet, Omar Sy</span>
+                </div>
+                <blockquote class="movie-quote">“Parfois, il faut s'immiscer dans le monde des autres pour découvrir ce qui manque au sien.”</blockquote>
+            </div>
+        </div>
+
+        <div class="movie-card even">
+            <img src="https://amlhdsan.github.io/movie/photo/4.jpeg" alt="Love Letter" class="movie-poster" onerror="this.src='https://via.placeholder.com/300x440/2c003e/d4af37?text=Top+4+Poster'">
+            <div class="movie-content">
+                <div class="rank-badge">TOP 04</div>
+                <h2 class="movie-title-native">Love Letter</h2>
+                <h3 class="movie-title-zh">情书</h3>
+                <div class="movie-meta">
+                    <span><strong>製作年：</strong> 1995</span>
+                    <span><strong>監督：</strong> 岩井俊二</span>
+                    <span><strong>出演：</strong> 中山美穂、豊川悦司</span>
+                </div>
+                <blockquote class="movie-quote">「お元気ですか？私は元気です。」</blockquote>
+            </div>
+        </div>
+
+        <div class="movie-card odd">
+            <img src="https://amlhdsan.github.io/movie/photo/5.jpeg" alt="もののけ姫" class="movie-poster" onerror="this.src='https://via.placeholder.com/300x440/2c003e/d4af37?text=Top+5+Poster'">
+            <div class="movie-content">
+                <div class="rank-badge">TOP 05</div>
+                <h2 class="movie-title-native">もののけ姫</h2>
+                <h3 class="movie-title-zh">幽灵公主</h3>
+                <div class="movie-meta">
+                    <span><strong>製作年：</strong> 1997</span>
+                    <span><strong>監督：</strong> 宮崎駿</span>
+                    <span><strong>声の出演：</strong> 松田洋治、石田ゆり子</span>
+                </div>
+                <blockquote class="movie-quote">「生きろ。そなたは美しい。」</blockquote>
+            </div>
+        </div>
+
+        <div class="movie-card even">
+            <img src="https://amlhdsan.github.io/movie/photo/6.jpeg" alt="心缘" class="movie-poster" onerror="this.src='https://via.placeholder.com/300x440/2c003e/d4af37?text=Top+6+Poster'">
+            <div class="movie-content">
+                <div class="rank-badge">TOP 06</div>
+                <h2 class="movie-title-native">心缘</h2>
+                <h3 class="movie-title-zh">心缘</h3>
+                <div class="movie-meta">
+                    <span><strong>年份：</strong> 经典收录</span>
+                    <span><strong>编导演：</strong> 群像时代演绎</span>
+                </div>
+                <blockquote class="movie-quote">“生命中的每一次相遇，都是心与心的奇妙缘分，值得我们用一生去珍藏。”</blockquote>
+            </div>
+        </div>
+
+        <div class="movie-card odd">
+            <img src="https://amlhdsan.github.io/movie/photo/7.jpeg" alt="君の名は。" class="movie-poster" onerror="this.src='https://via.placeholder.com/300x440/2c003e/d4af37?text=Top+7+Poster'">
+            <div class="movie-content">
+                <div class="rank-badge">TOP 07</div>
+                <h2 class="movie-title-native">君の名は。</h2>
+                <h3 class="movie-title-zh">你的名字</h3>
+                <div class="movie-meta">
+                    <span><strong>製作年：</strong> 2016</span>
+                    <span><strong>監督：</strong> 新海誠</span>
+                    <span><strong>声の出演：</strong> 神木隆之介、上白石萌音</span>
+                </div>
+                <blockquote class="movie-quote">「言おうと思ったんだ。お前が世界のどこにいても、俺が必ず、もう一度会いに行くって。」</blockquote>
+            </div>
+        </div>
+
+        <div class="movie-card even">
+            <img src="https://amlhdsan.github.io/movie/photo/8.jpeg" alt="阿飛正傳" class="movie-poster" onerror="this.src='https://via.placeholder.com/300x440/2c003e/d4af37?text=Top+8+Poster'">
+            <div class="movie-content">
+                <div class="rank-badge">TOP 08</div>
+                <h2 class="movie-title-native">阿飛正傳</h2>
+                <h3 class="movie-title-zh">阿飞正传</h3>
+                <div class="movie-meta">
+                    <span><strong>年份：</strong> 1990</span>
+                    <span><strong>導演：</strong> 王家衛</span>
+                    <span><strong>主演：</strong> 張國榮、張曼玉、劉德華、劉嘉玲</span>
+                </div>
+                <blockquote class="movie-quote">「一九六零年四月十六號下午三點之前的一分鐘你同我喺埋一起，因為你我會邊記住呢一分鐘。」</blockquote>
+            </div>
+        </div>
+
+        <div class="movie-card odd">
+            <img src="https://amlhdsan.github.io/movie/photo/9.jpeg" alt="站台" class="movie-poster" onerror="this.src='https://via.placeholder.com/300x440/2c003e/d4af37?text=Top+9+Poster'">
+            <div class="movie-content">
+                <div class="rank-badge">TOP 09</div>
+                <h2 class="movie-title-native">站台</h2>
+                <h3 class="movie-title-zh">站台</h3>
+                <div class="movie-meta">
+                    <span><strong>年份：</strong> 2000</span>
+                    <span><strong>导演：</strong> 贾樟柯</span>
+                    <span><strong>主演：</strong> 王宏伟、赵涛、梁景东</span>
+                </div>
+                <blockquote class="movie-quote">“等待，或许是那个时代我们唯一能做的事情。”</blockquote>
+            </div>
+        </div>
+
+        <div class="movie-card even">
+            <img src="https://amlhdsan.github.io/movie/photo/10.jpeg" alt="重慶森林" class="movie-poster" onerror="this.src='https://via.placeholder.com/300x440/2c003e/d4af37?text=Top+10+Poster'">
+            <div class="movie-content">
+                <div class="rank-badge">TOP 10</div>
+                <h2 class="movie-title-native">重慶森林</h2>
+                <h3 class="movie-title-zh">重庆森林</h3>
+                <div class="movie-meta">
+                    <span><strong>年份：</strong> 1994</span>
+                    <span><strong>導演：</strong> 王家衛</span>
+                    <span><strong>主演：</strong> 林青霞、金城武、梁朝偉、王菲</span>
+                </div>
+                <blockquote class="movie-quote">「不知道從什麼時候開始，在什麼東西上面都有個日期，秋刀魚會過期，肉罐頭會過期，連保鮮紙都會過期。」</blockquote>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                    }
+                });
+            }, {
+                threshold: 0.12 /* 精准控制滑入时机 */
+            });
+
+            const cards = document.querySelectorAll('.movie-card');
+            cards.forEach(card => {
+                observer.observe(card);
+            });
+        });
+    </script>
+</body>
+</html>
