@@ -1,1 +1,533 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>音乐殿堂 for amlhdsan</title>
+    <style>
+        /* 基础重置与学术深邃紫金背景 */
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Georgia', 'Times New Roman', 'Songti SC', 'STSong', 'SimSun', serif;
+            background: linear-gradient(135deg, #09000d 0%, #240926 50%, #4a3b14 100%);
+            background-attachment: fixed;
+            color: #ffffff;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
 
+        /* 顶部学术志风格导言 */
+        header {
+            text-align: center;
+            padding: 80px 20px 40px;
+            letter-spacing: 3px;
+        }
+        header h1 {
+            font-size: 2.8em;
+            margin: 0;
+            font-weight: 700;
+            border-bottom: 1px solid rgba(212, 175, 55, 0.3);
+            display: inline-block;
+            padding-bottom: 15px;
+            letter-spacing: 4px;
+        }
+        header p {
+            font-size: 1.05em;
+            color: rgba(255, 255, 255, 0.6);
+            margin-top: 20px;
+            font-style: italic;
+        }
+
+        /* 三列主容器网格 */
+        .dashboard-grid {
+            max-width: 1300px;
+            margin: 0 auto;
+            padding: 20px;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 25px;
+            align-items: start;
+        }
+
+        /* 纵列通用样式 */
+        .tier-column {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 6px;
+            padding: 25px 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+            
+            /* 渐出动画初始状态 */
+            opacity: 0;
+            transform: translateY(40px);
+            transition: opacity 0.8s cubic-bezier(0.1, 0.8, 0.25, 1), transform 0.8s cubic-bezier(0.1, 0.8, 0.25, 1);
+        }
+        .tier-column.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* 针对不同阶层顶部的尊贵色条线 */
+        .tier-column.t0-col { border-top: 4px solid #d4af37; }
+        .tier-column.s1-col { border-top: 4px solid #e5e4e2; }
+        .tier-column.s2-col { border-top: 4px solid #cd7f32; }
+
+        /* 纵列标头 */
+        .column-header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 1px dashed rgba(255, 255, 255, 0.15);
+        }
+        .column-header h2 {
+            margin: 0;
+            font-size: 1.6em;
+            font-weight: 500;
+            letter-spacing: 2px;
+        }
+        .t0-col .column-header h2 { color: #d4af37; }
+        .s1-col .column-header h2 { color: #e5e4e2; }
+        .s2-col .column-header h2 { color: #cd7f32; }
+        
+        .column-header p {
+            margin: 5px 0 0;
+            font-size: 0.85em;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            opacity: 0.5;
+        }
+
+        /* 紧凑型学术音乐卡片 */
+        .music-card-compact {
+            display: flex;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 4px;
+            padding: 15px;
+            margin-bottom: 15px;
+            transition: transform 0.3s ease, border-color 0.3s ease, background 0.3s ease;
+        }
+        .music-card-compact:hover {
+            transform: translateY(-2px);
+            background: rgba(255, 255, 255, 0.07);
+        }
+        .t0-col .music-card-compact:hover { border-color: rgba(212, 175, 55, 0.4); }
+        .s1-col .music-card-compact:hover { border-color: rgba(229, 228, 226, 0.4); }
+        .s2-col .music-card-compact:hover { border-color: rgba(205, 127, 50, 0.4); }
+
+        /* 封面微缩图 */
+        .card-cover {
+            width: 82px;
+            height: 82px;
+            border-radius: 2px;
+            object-fit: cover;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+            flex-shrink: 0;
+            margin-right: 18px;
+        }
+
+        /* 文本内容区 */
+        .card-details {
+            flex-grow: 1;
+            min-width: 0; /* 防止文本溢出 */
+        }
+
+        /* 原语种主歌名 */
+        .music-title-native {
+            font-size: 1.15em;
+            font-weight: 600;
+            margin: 0 0 3px 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            color: #ffffff;
+        }
+
+        /* 灰色中文注解副歌名 */
+        .music-title-zh {
+            color: rgba(255, 255, 255, 0.45);
+            font-size: 0.85em;
+            margin: 0 0 8px 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            font-weight: 400;
+            letter-spacing: 0.5px;
+        }
+
+        /* 文献感元数据 */
+        .music-meta {
+            font-size: 0.8em;
+            color: rgba(255, 255, 255, 0.7);
+            line-height: 1.4;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .music-meta span {
+            display: block;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .music-meta strong {
+            font-weight: normal;
+            opacity: 0.5;
+            margin-right: 4px;
+        }
+
+        /* 响应式断点：平板与手机端自动切回单列 */
+        @media (max-width: 1024px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+                max-width: 600px;
+                gap: 40px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>音樂殿堂 for amlhdsan</h1>
+        <p>— 樂章志評：聽覺美學的階梯矩陣與原語銘刻 —</p>
+    </header>
+
+    <div class="dashboard-grid">
+
+        <div class="tier-column t0-col">
+            <div class="column-header">
+                <h2>T0</h2>
+                <p>冠冕神殿 · Highest Tier</p>
+            </div>
+
+            <div class="music-card-compact">
+                <img src="https://amlhdsan.github.io/music/photo/T0/たぶん - Single-YOASOBI.jpg" alt="たぶん" class="card-cover" onerror="this.src='https://via.placeholder.com/100/2c003e/d4af37?text=YOASOBI'">
+                <div class="card-details">
+                    <div class="music-title-native">たぶん</div>
+                    <div class="music-title-zh">大概 / Probably</div>
+                    <div class="music-meta">
+                        <span><strong>Artist:</strong> YOASOBI</span>
+                        <span><strong>Album:</strong> たぶん - Single</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="music-card-compact">
+                <img src="https://amlhdsan.github.io/music/photo/T0/あの夢をなぞって - Single-YOASOBI.jpg" alt="あの夢をなぞって" class="card-cover" onerror="this.src='https://via.placeholder.com/100/2c003e/d4af37?text=YOASOBI'">
+                <div class="card-details">
+                    <div class="music-title-native">あの夢をなぞって</div>
+                    <div class="music-title-zh">描摹那段夢境 / Tracing That Dream</div>
+                    <div class="music-meta">
+                        <span><strong>Artist:</strong> YOASOBI</span>
+                        <span><strong>Album:</strong> あの夢をなぞって - Single</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="music-card-compact">
+                <img src="https://amlhdsan.github.io/music/photo/T0/17さいのうた。 - Single-Yuika.jpg" alt="17さいのうた。" class="card-cover" onerror="this.src='https://via.placeholder.com/100/2c003e/d4af37?text=Yuika'">
+                <div class="card-details">
+                    <div class="music-title-native">17さいのうた。</div>
+                    <div class="music-title-zh">17歲之歌 / Seventeen's Song</div>
+                    <div class="music-meta">
+                        <span><strong>Artist:</strong> 『ユイカ』 (Yuika)</span>
+                        <span><strong>Album:</strong> 17さいのうた。 - Single</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="music-card-compact">
+                <img src="https://amlhdsan.github.io/music/photo/T0/Bubble.jpg" alt="左右盲" class="card-cover" onerror="this.src='https://via.placeholder.com/100/2c003e/d4af37?text=Yorushika'">
+                <div class="card-details">
+                    <div class="music-title-native">あぶく</div>
+                    <div class="music-title-zh">あぶく / Bubble</div>
+                    <div class="music-meta">
+                        <span><strong>Artist:</strong> ヨルシカ (Yorushika)</span>
+                        <span><strong>Album:</strong> Bubble - Single</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="music-card-compact">
+                <img src="https://amlhdsan.github.io/music/photo/T0/First Love Remastered 2014-Hikaru Utada.jpg" alt="First Love" class="card-cover" onerror="this.src='https://via.placeholder.com/100/2c003e/d4af37?text=Hikaru+Utada'">
+                <div class="card-details">
+                    <div class="music-title-native">First Love</div>
+                    <div class="music-title-zh">初戀 / First Love (Remastered 2014)</div>
+                    <div class="music-meta">
+                        <span><strong>Artist:</strong> 宇多田ヒカル (Hikaru Utada)</span>
+                        <span><strong>Album:</strong> First Love (Remastered 2014)</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="music-card-compact">
+                <img src="https://amlhdsan.github.io/music/photo/T0/FREEDOM PIANO STORIES 4-Joe Hisaishi.jpg" alt="人生のメリーゴーランド" class="card-cover" onerror="this.src='https://via.placeholder.com/100/2c003e/d4af37?text=Joe+Hisaishi'">
+                <div class="card-details">
+                    <div class="music-title-native">人生のメリーゴーランド</div>
+                    <div class="music-title-zh">人生的旋轉木馬 / Merry-Go-Round of Life</div>
+                    <div class="music-meta">
+                        <span><strong>Artist:</strong> 久石譲 (Joe Hisaishi)</span>
+                        <span><strong>Album:</strong> FREEDOM PIANO STORIES 4</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="music-card-compact">
+                <img src="https://amlhdsan.github.io/music/photo/T0/Frozen Flower-Rokudenashi.jpg" alt="アルビレオ" class="card-cover" onerror="this.src='https://via.placeholder.com/100/2c003e/d4af37?text=Rokudenashi'">
+                <div class="card-details">
+                    <div class="music-title-native">アルビレオ</div>
+                    <div class="music-title-zh">アルビレオ / Albireo</div>
+                    <div class="music-meta">
+                        <span><strong>Artist:</strong> ロクデナシ (Rokudenashi)</span>
+                        <span><strong>Album:</strong> Frozen Flower</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="music-card-compact">
+                <img src="https://amlhdsan.github.io/music/photo/T0/Inochini Kirawareteiru - Single-majiko.jpg" alt="命に嫌われている。" class="card-cover" onerror="this.src='https://via.placeholder.com/100/2c003e/d4af37?text=majiko'">
+                <div class="card-details">
+                    <div class="music-title-native">命に嫌われている。</div>
+                    <div class="music-title-zh">被生命所厭惡 / Hated by Life Itself</div>
+                    <div class="music-meta">
+                        <span><strong>Artist:</strong> majiko</span>
+                        <span><strong>Album:</strong> Inochini Kirawareteiru - Single</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="music-card-compact">
+                <img src="https://amlhdsan.github.io/music/photo/T0/Kawakiwoameku.jpg" alt="カワキヲアメク" class="card-cover" onerror="this.src='https://via.placeholder.com/100/2c003e/d4af37?text=Minami'">
+                <div class="card-details">
+                    <div class="music-title-native">カワキヲアメク</div>
+                    <div class="music-title-zh">美波 / Crying for Rain</div>
+                    <div class="music-meta">
+                        <span><strong>Artist:</strong> 美波 (Minami)</span>
+                        <span><strong>Album:</strong> Kawakiwoameku - EP</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="music-card-compact">
+                <img src="https://amlhdsan.github.io/music/photo/T0/Spica.jpg" alt="スピカ" class="card-cover" onerror="this.src='https://via.placeholder.com/100/2c003e/d4af37?text=Rokudenashi'">
+                <div class="card-details">
+                    <div class="music-title-native">スピカ</div>
+                    <div class="music-title-zh">スピカ / Spica</div>
+                    <div class="music-meta">
+                        <span><strong>Artist:</strong> ロクデナシ (Rokudenashi)</span>
+                        <span><strong>Album:</strong> Spica - Single</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="music-card-compact">
+                <img src="https://amlhdsan.github.io/music/photo/T0/The one - Single-Yuika.jpg" alt="恋泥棒。" class="card-cover" onerror="this.src='https://via.placeholder.com/100/2c003e/d4af37?text=Yuika'">
+                <div class="card-details">
+                    <div class="music-title-native">運命の人</div>
+                    <div class="music-title-zh">運命の人 / The one</div>
+                    <div class="music-meta">
+                        <span><strong>Artist:</strong> 『ユイカ』 (Yuika)</span>
+                        <span><strong>Album:</strong> The one - Single</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="tier-column s1-col">
+            <div class="column-header">
+                <h2>S1</h2>
+                <p>雋永星河 · Premium Tier</p>
+            </div>
+
+            <div class="music-card-compact">
+                <img src="https://amlhdsan.github.io/music/photo/S1/群青 - Single-YOASOBI.jpg" alt="群青" class="card-cover" onerror="this.src='https://via.placeholder.com/100/2c003e/e5e4e2?text=YOASOBI'">
+                <div class="card-details">
+                    <div class="music-title-native">群青</div>
+                    <div class="music-title-zh">群青 / Blue</div>
+                    <div class="music-meta">
+                        <span><strong>Artist:</strong> YOASOBI</span>
+                        <span><strong>Album:</strong> Gunjou - Single</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="music-card-compact">
+                <img src="https://amlhdsan.github.io/music/photo/S1/夜に駆ける - Single-YOASOBI.jpg" alt="夜に駆ける" class="card-cover" onerror="this.src='https://via.placeholder.com/100/2c003e/e5e4e2?text=YOASOBI'">
+                <div class="card-details">
+                    <div class="music-title-native">夜に駆ける</div>
+                    <div class="music-title-zh">向夜晚奔去 / Racing into the Night</div>
+                    <div class="music-meta">
+                        <span><strong>Artist:</strong> YOASOBI</span>
+                        <span><strong>Album:</strong> 夜に駆ける - Single</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="music-card-compact">
+                <img src="https://amlhdsan.github.io/music/photo/S1/むすぶ Deluxe Version-Ram Wire.jpg" alt="僕らの手には何もないけど、" class="card-cover" onerror="this.src='https://via.placeholder.com/100/2c003e/e5e4e2?text=RAM+WIRE'">
+                <div class="card-details">
+                    <div class="music-title-native">僕らの手には何もないけど、</div>
+                    <div class="music-title-zh">雖然我們的手中空無一物</div>
+                    <div class="music-meta">
+                        <span><strong>Artist:</strong> RAM WIRE</span>
+                        <span><strong>Album:</strong> Musubu (Deluxe Version)</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="music-card-compact">
+                <img src="https://amlhdsan.github.io/music/photo/S1/Live 2017 - EP-majiko.jpg" alt="心做し" class="card-cover" onerror="this.src='https://via.placeholder.com/100/2c003e/e5e4e2?text=majiko'">
+                <div class="card-details">
+                    <div class="music-title-native">心做し</div>
+                    <div class="music-title-zh">心理作用 / Kokoronashi</div>
+                    <div class="music-meta">
+                        <span><strong>Artist:</strong> majiko</span>
+                        <span><strong>Album:</strong> Live 2017 - EP</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="music-card-compact">
+                <img src="https://amlhdsan.github.io/music/photo/S1/LOVE.jpg" alt="まちがいさがし" class="card-cover" onerror="this.src='https://via.placeholder.com/100/2c003e/e5e4e2?text=Masaki+Suda'">
+                <div class="card-details">
+                    <div class="music-title-native">まちがいさがし</div>
+                    <div class="music-title-zh">まちがいさがし / ma chi ga i sa ga shi</div>
+                    <div class="music-meta">
+                        <span><strong>Artist:</strong> 菅田将暉 (Masaki Suda)</span>
+                        <span><strong>Album:</strong> LOVE</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="music-card-compact">
+                <img src="https://amlhdsan.github.io/music/photo/S1/Magic Lantern-Yorushika.jpg" alt="老人と海" class="card-cover" onerror="this.src='https://via.placeholder.com/100/2c003e/e5e4e2?text=Yorushika'">
+                <div class="card-details">
+                    <div class="music-title-native">老人と海</div>
+                    <div class="music-title-zh">老人與海 / The Old Man and the Sea</div>
+                    <div class="music-meta">
+                        <span><strong>Artist:</strong> ヨルシカ (Yorushika)</span>
+                        <span><strong>Album:</strong> Magic Lantern</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="music-card-compact">
+                <img src="https://amlhdsan.github.io/music/photo/S1/Matasaburo - Single-Yorushika.jpg" alt="又三郎" class="card-cover" onerror="this.src='https://via.placeholder.com/100/2c003e/e5e4e2?text=Yorushika'">
+                <div class="card-details">
+                    <div class="music-title-native">又三郎</div>
+                    <div class="music-title-zh">又三郎 / Matasaburo</div>
+                    <div class="music-meta">
+                        <span><strong>Artist:</strong> ヨルシカ (Yorushika)</span>
+                        <span><strong>Album:</strong> Matasaburo - Single</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="music-card-compact">
+                <img src="https://amlhdsan.github.io/music/photo/S1/tada.jpg" alt="ただ声一つ" class="card-cover" onerror="this.src='https://via.placeholder.com/100/2c003e/e5e4e2?text=Rokudenashi'">
+                <div class="card-details">
+                    <div class="music-title-native">ただ声一つ</div>
+                    <div class="music-title-zh">唯留一聲 / One Voice</div>
+                    <div class="music-meta">
+                        <span><strong>Artist:</strong> ロクデナシ (Rokudenashi)</span>
+                        <span><strong>Album:</strong> One Voice - Single</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="tier-column s2-col">
+            <div class="column-header">
+                <h2>S2</h2>
+                <p>鳴沙回響 · Classic Tier</p>
+            </div>
+
+            <div class="music-card-compact">
+                <img src="https://amlhdsan.github.io/music/photo/S2/すずめ feat. 十明 - Single-RADWIMPS.jpg" alt="すずめ" class="card-cover" onerror="this.src='https://via.placeholder.com/100/2c003e/cd7f32?text=RADWIMPS'">
+                <div class="card-details">
+                    <div class="music-title-native">すずめ</div>
+                    <div class="music-title-zh">鈴芽 / Suzume (feat. Toaka)</div>
+                    <div class="music-meta">
+                        <span><strong>Artist:</strong> RADWIMPS feat. 十明</span>
+                        <span><strong>Album:</strong> Suzume (feat. Toaka) - Single</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="music-card-compact">
+                <img src="https://amlhdsan.github.io/music/photo/S2/aizai.jpg" alt="愛在" class="card-cover" onerror="this.src='https://via.placeholder.com/100/2c003e/cd7f32?text=Khalil+Fong'">
+                <div class="card-details">
+                    <div class="music-title-native">愛在</div>
+                    <div class="music-title-zh">愛在 / Love in Wonderland</div>
+                    <div class="music-meta">
+                        <span><strong>主唱:</strong> 方大同 (Khalil Fong)</span>
+                        <span><strong>專輯:</strong> Wonderland</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="music-card-compact">
+                <img src="https://amlhdsan.github.io/music/photo/S2/BOOTLEG.jpg" alt="灰色と青" class="card-cover" onerror="this.src='https://via.placeholder.com/100/2c003e/cd7f32?text=Kenshi+Yonezu'">
+                <div class="card-details">
+                    <div class="music-title-native">灰色と青</div>
+                    <div class="music-title-zh">灰色與青 / Grey and Blue</div>
+                    <div class="music-meta">
+                        <span><strong>Artist:</strong> 米津玄師 & 菅田将暉</span>
+                        <span><strong>Album:</strong> bootleg</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="music-card-compact">
+                <img src="https://amlhdsan.github.io/music/photo/S2/I'm O.K.-David Tao.jpg" alt="普通朋友" class="card-cover" onerror="this.src='https://via.placeholder.com/100/2c003e/cd7f32?text=David+Tao'">
+                <div class="card-details">
+                    <div class="music-title-native">普通朋友</div>
+                    <div class="music-title-zh">陶喆 / Regular Friends</div>
+                    <div class="music-meta">
+                        <span><strong>主唱/製作:</strong> 陶喆 (David Tao)</span>
+                        <span><strong>專輯:</strong> I'm O.K.</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="music-card-compact">
+                <img src="https://amlhdsan.github.io/music/photo/S2/Uchiagehanabi - Single-DAOKO.jpg" alt="打上花火" class="card-cover" onerror="this.src='https://via.placeholder.com/100/2c003e/cd7f32?text=DAOKO'">
+                <div class="card-details">
+                    <div class="music-title-native">打上花火</div>
+                    <div class="music-title-zh">升空的煙花 / Fireworks</div>
+                    <div class="music-meta">
+                        <span><strong>Artist:</strong> DAOKO × 米津玄師</span>
+                        <span><strong>Album:</strong> Uchiagehanabi - Single</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                    }
+                });
+            }, {
+                threshold: 0.05
+            });
+
+            const columns = document.querySelectorAll('.tier-column');
+            columns.forEach((col, index) => {
+                // 赋予三列微弱的错落入场动态延迟感
+                col.style.transitionDelay = `${index * 0.15}s`;
+                observer.observe(col);
+            });
+        });
+    </script>
+</body>
+</html>
