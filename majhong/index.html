@@ -1,1 +1,490 @@
 
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title> 立直麻将翻点计算器 ver 6.1 </title>
+    <style>
+        :root { --primary: #e6a23c; --secondary: #2c3e50; --bg: #0f172a; --panel: #1e293b; --text: #f8fafc; --danger: #ef4444; --success: #10b981; }
+        body { margin: 0; padding: 20px; font-family: 'Helvetica Neue', 'Hiragino Sans GB', sans-serif; background: var(--bg); color: var(--text); }
+        .app-container { max-width: 1000px; margin: 0 auto; background: var(--panel); padding: 25px; border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,0.6); border: 1px solid #334155; }
+        h1 { text-align: center; color: var(--primary); font-weight: bold; margin-bottom: 25px; display: flex; justify-content: center; align-items: center; gap: 20px;}
+        
+        .lang-switch { display: flex; background: #334155; border-radius: 20px; padding: 4px; cursor: pointer; }
+        .lang-btn { padding: 4px 15px; font-size: 14px; border-radius: 16px; transition: 0.2s; color: #94a3b8; }
+        .lang-btn.active { background: var(--primary); color: #0f172a; font-weight: bold; }
+
+        .controls { display: flex; flex-direction: column; gap: 15px; margin-bottom: 25px; }
+        .mode-tabs { display: flex; gap: 8px; flex-wrap: wrap; border-bottom: 1px solid #334155; padding-bottom: 15px; }
+        .mode-tab { padding: 8px 14px; background: #334155; border-radius: 6px; cursor: pointer; color: #cbd5e1; font-size: 13px; transition: 0.2s; border: 1px solid transparent; }
+        .mode-tab.active { background: rgba(230, 162, 60, 0.2); color: var(--primary); border-color: var(--primary); }
+        .btn-reset { margin-left: auto; background: rgba(239, 68, 68, 0.1); color: var(--danger); border: 1px solid var(--danger); }
+
+        .tile-pool { display: flex; flex-wrap: wrap; gap: 6px; }
+        .tile { width: 34px; height: 48px; display: flex; justify-content: center; align-items: center; border-radius: 5px; background: #f1f5f9; font-weight: bold; cursor: pointer; user-select: none; box-shadow: 0 4px 0 #94a3b8; font-size: 18px; color: #0f172a; transition: transform 0.1s; }
+        .tile:active { transform: translateY(4px); box-shadow: none; }
+        .tile.m { color: #b91c1c; } .tile.p { color: #1d4ed8; } .tile.s { color: #047857; } .tile.z { color: #0f172a; }
+        .tile.aka { color: #dc2626; background: #fee2e2; border: 1px solid #ef4444; }
+        .tile.sm { width: 30px; height: 42px; font-size: 15px; box-shadow: 0 2px 0 #94a3b8; }
+
+        .board { background: #064e3b; padding: 20px; border-radius: 12px; border: 3px solid #047857; margin-bottom: 25px; box-shadow: inset 0 0 20px rgba(0,0,0,0.6); }
+        .board-title { font-size: 12px; color: #6ee7b7; margin-bottom: 10px; font-weight: bold; text-transform: uppercase; }
+        .row { display: flex; min-height: 44px; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 15px; }
+        .hand-group { display: flex; gap: 2px; padding: 5px; background: rgba(0,0,0,0.4); border-radius: 6px; }
+        .agari-slot { padding: 5px; background: rgba(230, 162, 60, 0.2); border-radius: 6px; border: 2px dashed var(--primary); display: flex; min-width: 32px; min-height: 44px; align-items: center; justify-content: center; margin-left: 15px; }
+
+        .settings { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 15px; margin-bottom: 25px; background: #334155; padding: 20px; border-radius: 12px; }
+        .set-item { display: flex; flex-direction: column; gap: 8px; font-size: 13px; font-weight: bold; color: #94a3b8; }
+        select { padding: 10px; background: #1e293b; border: 1px solid #475569; color: white; border-radius: 6px; outline: none; }
+        .checkbox-group { display: flex; flex-wrap: wrap; gap: 15px; padding: 10px; background: #1e293b; border-radius: 8px; }
+        .checkbox-group label { display: flex; align-items: center; gap: 5px; cursor: pointer; color: #cbd5e1; font-size: 13px; }
+        input[type="checkbox"] { accent-color: var(--primary); }
+
+        .btn-calc { width: 100%; padding: 16px; background: var(--primary); color: #0f172a; border: none; border-radius: 8px; font-size: 20px; font-weight: bold; cursor: pointer; transition: 0.2s; margin-bottom: 20px; }
+        .btn-calc:hover { background: #f5bc53; }
+        .error { color: var(--danger); text-align: center; margin-bottom: 15px; font-weight: bold; background: rgba(239, 68, 68, 0.1); padding: 10px; border-radius: 6px; display: none; border: 1px solid var(--danger); }
+        
+        #result-box { display: none; background: #1e293b; border: 2px solid var(--primary); border-radius: 12px; overflow: hidden; }
+        .res-head { background: var(--primary); color: #0f172a; padding: 20px; text-align: center; font-size: 26px; font-weight: bold; }
+        .res-body { padding: 25px; display: grid; grid-template-columns: 1fr; gap: 20px; }
+        @media (min-width: 800px) { .res-body { grid-template-columns: 3fr 2fr; } }
+        
+        .yaku-grid { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 10px; align-content: start;}
+        .yaku-grid li { background: #334155; padding: 12px; border-radius: 6px; display: flex; justify-content: space-between; border-left: 4px solid var(--primary); font-size: 15px; }
+        .yaku-grid li.yakuman { border-left-color: var(--danger); background: rgba(239, 68, 68, 0.15); }
+        .fu-details { background: #0f172a; padding: 15px; border-radius: 8px; font-size: 13px; color: #94a3b8; border: 1px solid #334155; }
+        .fu-row { display: flex; justify-content: space-between; margin-bottom: 6px; }
+        .fu-row.total { margin-top: 10px; padding-top: 10px; border-top: 1px dashed #475569; font-weight: bold; color: #fff; font-size: 15px; }
+        .res-points { grid-column: 1 / -1; text-align: center; font-size: 26px; font-weight: bold; color: var(--primary); background: rgba(230, 162, 60, 0.1); padding: 20px; border-radius: 8px; border: 1px dashed var(--primary); }
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    <h1>🀄 <span data-i18n="title">立直麻将翻点计算器 ver 6.1</span> 
+        <div class="lang-switch" onclick="toggleLang()">
+            <div class="lang-btn active" id="btn-zh">中</div><div class="lang-btn" id="btn-ja">日</div>
+        </div>
+    </h1>
+    
+    <div class="controls">
+        <div class="mode-tabs" id="mode-tabs">
+            <div class="mode-tab active" data-mode="hand" onclick="setMode('hand')" data-i18n="m_hand">✋ 门前手牌</div>
+            <div class="mode-tab" data-mode="agari" onclick="setMode('agari')" style="color:var(--primary); border-color:var(--primary);" data-i18n="m_agari">🎯 和了牌</div>
+            <div class="mode-tab" data-mode="chi_L" onclick="setMode('chi_L')" data-i18n="m_chi_L">🥢 吃(左:123)</div>
+            <div class="mode-tab" data-mode="chi_C" onclick="setMode('chi_C')" data-i18n="m_chi_C">🥢 吃(中:234)</div>
+            <div class="mode-tab" data-mode="chi_R" onclick="setMode('chi_R')" data-i18n="m_chi_R">🥢 吃(右:345)</div>
+            <div class="mode-tab" data-mode="pon" onclick="setMode('pon')" data-i18n="m_pon">🥢 碰</div>
+            <div class="mode-tab" data-mode="minkan" onclick="setMode('minkan')" data-i18n="m_minkan">🀫 明杠</div>
+            <div class="mode-tab" data-mode="ankan" onclick="setMode('ankan')" data-i18n="m_ankan">🀫 暗杠</div>
+            <div class="mode-tab" data-mode="dora" onclick="setMode('dora')" data-i18n="m_dora">🎴 表宝指示</div>
+            <div class="mode-tab" data-mode="ura" onclick="setMode('ura')" data-i18n="m_ura">🎴 里宝指示</div>
+            <button class="mode-tab btn-reset" onclick="resetAll()" data-i18n="btn_clear">🗑️ 清空</button>
+        </div>
+        <div class="tile-pool" id="pool-m"></div><div class="tile-pool" id="pool-p"></div>
+        <div class="tile-pool" id="pool-s"></div><div class="tile-pool" id="pool-z"></div>
+    </div>
+
+    <div class="board">
+        <div class="board-title" data-i18n="t_dora">Dora Indicators</div>
+        <div class="row" id="view-dora"></div>
+        <div class="board-title" id="hand-count-title" style="margin-top: 10px;">Player Hand (0/14)</div>
+        <div class="row">
+            <div style="display:flex; gap:8px;" id="view-melds"></div>
+            <div class="hand-group" id="view-closed"></div>
+            <div class="agari-slot" id="view-agari"></div>
+        </div>
+    </div>
+
+    <div class="settings">
+        <div class="set-item">
+            <label data-i18n="s_agari_type">和牌方式</label>
+            <select id="set-agari"><option value="tsumo" data-i18n="opt_tsumo">自摸</option><option value="ron" data-i18n="opt_ron">荣和</option></select>
+        </div>
+        <div class="set-item">
+            <label data-i18n="s_bakaze">场风</label>
+            <select id="set-bakaze"><option value="27" data-i18n="opt_e">东</option><option value="28" data-i18n="opt_s">南</option><option value="29" data-i18n="opt_w">西</option><option value="30" data-i18n="opt_n">北</option></select>
+        </div>
+        <div class="set-item">
+            <label data-i18n="s_jikaze">自风</label>
+            <select id="set-jikaze"><option value="27" data-i18n="opt_e_oya">东(庄)</option><option value="28" data-i18n="opt_s">南</option><option value="29" data-i18n="opt_w">西</option><option value="30" data-i18n="opt_n">北</option></select>
+        </div>
+        <div class="set-item" style="grid-column: 1 / -1;">
+            <label data-i18n="s_extras">偶然役</label>
+            <div class="checkbox-group">
+                <label><input type="checkbox" id="chk-riichi"> <span data-i18n="y_riichi">立直</span></label>
+                <label><input type="checkbox" id="chk-daburii"> <span data-i18n="y_daburii">两立直</span></label>
+                <label><input type="checkbox" id="chk-ippatsu"> <span data-i18n="y_ippatsu">一发</span></label>
+                <label><input type="checkbox" id="chk-rinshan"> <span data-i18n="y_rinshan">岭上开花</span></label>
+                <label><input type="checkbox" id="chk-chankan"> <span data-i18n="y_chankan">抢杠</span></label>
+                <label><input type="checkbox" id="chk-haitei"> <span data-i18n="y_haitei">海底/河底</span></label>
+                <label><input type="checkbox" id="chk-tenhou"> <span data-i18n="y_tenhou">天和/地和</span></label>
+            </div>
+        </div>
+    </div>
+
+    <button class="btn-calc" onclick="safeCalculate()">🚀 <span data-i18n="btn_calc"> GO </span></button>
+    <div id="error-msg" class="error"></div>
+
+    <div id="result-box">
+        <div class="res-head"><div id="res-title"></div><div style="font-size:16px; margin-top:5px; font-weight:normal;" id="res-limit"></div></div>
+        <div class="res-body">
+            <div><ul class="yaku-grid" id="res-yaku"></ul></div>
+            <div class="fu-details" id="res-fu-box"><div style="font-weight:bold; margin-bottom:10px; color:var(--primary);" data-i18n="t_fu_breakdown">📐 符数推演小课堂</div><div id="res-fu-list"></div></div>
+            <div class="res-points" id="res-points"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ==========================================
+    // 1. 数据字典与 i18n
+    // ==========================================
+    let LANG = 'zh';
+    const DICT = {
+        title: { zh: "立直麻将翻点计算器 ver 6.1", ja: "リーチ麻雀点数計算機 ver 6.1" },
+        m_hand: { zh: "✋ 门前手牌", ja: "✋ 門前手牌" }, m_agari: { zh: "🎯 和了牌", ja: "🎯 和了牌" },
+        m_chi_L: { zh: "🥢 吃(左:123)", ja: "🥢 チー(左:123)" }, m_chi_C: { zh: "🥢 吃(中:234)", ja: "🥢 チー(中:234)" }, m_chi_R: { zh: "🥢 吃(右:345)", ja: "🥢 チー(右:345)" },
+        m_pon: { zh: "🥢 碰", ja: "🥢 ポン" }, m_minkan: { zh: "🀫 明杠", ja: "🀫 明槓" }, m_ankan: { zh: "🀫 暗杠", ja: "🀫 暗槓" },
+        m_dora: { zh: "🎴 表宝指示", ja: "🎴 ドラ表示牌" }, m_ura: { zh: "🎴 里宝指示", ja: "🎴 裏ドラ表示牌" },
+        btn_clear: { zh: "🗑️ 清空", ja: "🗑️ クリア" }, t_dora: { zh: "Dora Indicators", ja: "ドラ表示牌" },
+        s_agari_type: { zh: "和牌方式", ja: "和了方法" }, opt_tsumo: { zh: "自摸", ja: "ツモ" }, opt_ron: { zh: "荣和", ja: "ロン" },
+        s_bakaze: { zh: "场风", ja: "場風" }, s_jikaze: { zh: "自风", ja: "自風" },
+        opt_e: { zh: "东", ja: "東" }, opt_s: { zh: "南", ja: "南" }, opt_w: { zh: "西", ja: "西" }, opt_n: { zh: "北", ja: "北" }, opt_e_oya: { zh: "东(庄)", ja: "東(親)" },
+        s_extras: { zh: "偶然役", ja: "状況役" }, btn_calc: { zh: "执行专业结算", ja: "点数を計算" },
+        y_riichi: { zh: "立直", ja: "立直" }, y_daburii: { zh: "两立直", ja: "ダブル立直" }, y_ippatsu: { zh: "一发", ja: "一発" },
+        y_rinshan: { zh: "岭上开花", ja: "嶺上開花" }, y_chankan: { zh: "抢杠", ja: "槍槓" }, y_haitei: { zh: "海底/河底", ja: "海底/河底" }, y_tenhou: { zh: "天和/地和", ja: "天和/地和" },
+        t_fu_breakdown: { zh: "📐 符数推演小课堂", ja: "📐 符計算の解説" },
+        
+        yk_tenhou: { zh: "天和", ja: "天和" }, yk_chiihou: { zh: "地和", ja: "地和" }, yk_kokushi: { zh: "国士无双", ja: "国士無双" }, yk_kokushi13: { zh: "国士无双13面", ja: "国士無双13面待ち" },
+        yk_daisan: { zh: "大三元", ja: "大三元" }, yk_tsuuiisou: { zh: "字一色", ja: "字一色" }, yk_ryuuiisou: { zh: "绿一色", ja: "緑一色" },
+        yk_chinroutou: { zh: "清老头", ja: "清老頭" }, yk_suuankou: { zh: "四暗刻", ja: "四暗刻" }, yk_suuankoutanki: { zh: "四暗刻单骑", ja: "四暗刻単騎" },
+        yk_suukantsu: { zh: "四杠子", ja: "四槓子" }, yk_shousuushii: { zh: "小四喜", ja: "小四喜" }, yk_daisuushii: { zh: "大四喜", ja: "大四喜" },
+        yk_chuuren: { zh: "九莲宝灯", ja: "九蓮宝燈" }, yk_junsei: { zh: "纯正九莲宝灯", ja: "純正九蓮宝燈" },
+        
+        yk_riichi: { zh: "立直", ja: "立直" }, yk_daburii: { zh: "两立直", ja: "ダブル立直" }, yk_ippatsu: { zh: "一发", ja: "一発" },
+        yk_rinshan: { zh: "岭上开花", ja: "嶺上開花" }, yk_chankan: { zh: "抢杠", ja: "槍槓" }, yk_haitei: { zh: "海底捞月", ja: "海底摸月" }, yk_houtei: { zh: "河底捞鱼", ja: "河底撈魚" },
+        yk_tsumo: { zh: "门前清自摸和", ja: "門前清自摸和" }, yk_tanyao: { zh: "断幺九", ja: "断幺九" }, yk_pinfu: { zh: "平和", ja: "平和" },
+        yk_iipeikou: { zh: "一杯口", ja: "一盃口" }, yk_yakuhai: { zh: "役牌", ja: "役牌" },
+        yk_sanshoku: { zh: "三色同顺", ja: "三色同順" }, yk_ittsu: { zh: "一气通贯", ja: "一気通貫" }, yk_chanta: { zh: "混全带幺九", ja: "混全帯幺九" },
+        yk_toitoi: { zh: "对对和", ja: "対々和" }, yk_sanankou: { zh: "三暗刻", ja: "三暗刻" }, yk_sankantsu: { zh: "三杠子", ja: "三槓子" },
+        yk_sanshokudoukou: { zh: "三色同刻", ja: "三色同刻" }, yk_honroutou: { zh: "混老头", ja: "混老頭" }, yk_shousangen: { zh: "小三元", ja: "小三元" },
+        yk_chiitoi: { zh: "七对子", ja: "七対子" }, yk_honitsu: { zh: "混一色", ja: "混一色" }, yk_junchan: { zh: "纯全带幺九", ja: "純全帯幺九" },
+        yk_ryanpeikou: { zh: "两杯口", ja: "二盃口" }, yk_chinitsu: { zh: "清一色", ja: "清一色" }, yk_dora: { zh: "宝牌", ja: "ドラ" },
+        
+        pt_yakuman: { zh: "役满", ja: "役満" }, pt_kazeyaku: { zh: "累计役满", ja: "数え役満" }, pt_sanbaiman: { zh: "三倍满", ja: "三倍満" },
+        pt_baiman: { zh: "倍满", ja: "倍満" }, pt_haneman: { zh: "跳满", ja: "跳満" }, pt_mangan: { zh: "满贯", ja: "満貫" },
+        txt_fan: { zh: "翻", ja: "飜" }, txt_fu: { zh: "符", ja: "符" },
+        ron_txt: { zh: "荣和出铳：", ja: "ロンアガリ：" }, tsumo_all: { zh: "自摸：每人支付", ja: "ツモ：オール" }, tsumo_ko: { zh: "自摸：庄家", ja: "ツモ：親" },
+        
+        fu_base: { zh: "底符", ja: "副底" }, fu_ron_closed: { zh: "门清荣和", ja: "門前加符" }, fu_tsumo: { zh: "自摸", ja: "ツモ" },
+        fu_pair_bakaze: { zh: "场风雀头", ja: "場風雀頭" }, fu_pair_jikaze: { zh: "自风雀头", ja: "自風雀頭" }, fu_pair_sangen: { zh: "三元雀头", ja: "三元雀頭" },
+        fu_wait: { zh: "听牌", ja: "待ち" }, fu_ankou: { zh: "暗刻", ja: "暗刻" }, fu_minkou: { zh: "明刻", ja: "明刻" }, fu_ankan: { zh: "暗杠", ja: "暗槓" }, fu_minkan: { zh: "明杠", ja: "明槓" },
+        fu_pinfu_t: { zh: "平和自摸特例", ja: "平和ツモ特例" }, fu_pinfu_r: { zh: "非门清平和型荣和保底", ja: "喰い平和ロン特例" }, fu_chiitoi: { zh: "七对子特例", ja: "七対子特例" }
+    };
+    function updateI18n() { document.querySelectorAll('[data-i18n]').forEach(el => { if(DICT[el.dataset.i18n]) el.innerText = DICT[el.dataset.i18n][LANG]; }); document.getElementById('btn-zh').className = `lang-btn ${LANG==='zh'?'active':''}`; document.getElementById('btn-ja').className = `lang-btn ${LANG==='ja'?'active':''}`; if(document.getElementById('result-box').style.display==='block') safeCalculate(); }
+    function toggleLang() { LANG = LANG === 'zh' ? 'ja' : 'zh'; updateI18n(); }
+    function t(key) { return DICT[key] ? DICT[key][LANG] : key; }
+
+    const TILES = [ { s: 'm', l: ['一','二','三','四','五','六','七','八','九'], o: 0 }, { s: 'p', l: ['①','②','③','④','⑤','⑥','⑦','⑧','⑨'], o: 9 }, { s: 's', l: ['1s','2s','3s','4s','5s','6s','7s','8s','9s'], o: 18 }, { s: 'z', l: ['东','南','西','北','白','发','中'], lJa: ['東','南','西','北','白','發','中'], o: 27 } ];
+    let currentMode = 'hand', state = { closed: [], agari: null, melds: [], doraInd: [], uraInd: [] };
+
+    // ==========================================
+    // 2. UI 交互与强效校验
+    // ==========================================
+    function initUI() {
+        TILES.forEach(g => {
+            const pool = document.getElementById(`pool-${g.s}`);
+            g.l.forEach((lbl, i) => {
+                let b = document.createElement('div'); b.className = `tile ${g.s}`; b.innerText = g.lJa && LANG==='ja' ? g.lJa[i] : lbl; b.onclick = () => handleInput(g.o+i, false); pool.appendChild(b);
+                if(i===4 && g.s!=='z') { let a = document.createElement('div'); a.className = `tile ${g.s} aka`; a.innerText = lbl; a.onclick = () => handleInput(g.o+i, true); pool.appendChild(a); }
+            });
+        }); updateI18n();
+    }
+    function setMode(mode) { currentMode = mode; document.querySelectorAll('.mode-tab').forEach(el => el.classList.toggle('active', el.dataset.mode === mode)); }
+
+    function handleInput(id, aka) {
+        const obj = { id, aka }; showError("");
+        let cTotal = state.closed.length + state.melds.length * 3;
+        let allT = [...state.closed, ...(state.agari?[state.agari]:[]), ...state.melds.flatMap(m=>m.tiles), ...state.doraInd, ...state.uraInd];
+        
+        if(!['dora','ura'].includes(currentMode) && allT.filter(t=>t.id===id).length >= 4 && !currentMode.includes('kan')) return showError("同种牌最多4张");
+        if(aka && allT.filter(t=>t.aka && Math.floor(t.id/9)===Math.floor(id/9)).length >= 1) return showError("单花色最多1张赤宝牌");
+
+        if(currentMode === 'hand') {
+            if(cTotal >= 13) { if(!state.agari) { state.agari = obj; setMode('agari'); } else showError("手牌已满"); }
+            else { state.closed.push(obj); state.closed.sort((a,b) => a.id-b.id); if(state.closed.length+state.melds.length*3===13 && !state.agari) setMode('agari'); }
+        } else if(currentMode === 'agari') state.agari = obj;
+        else if(currentMode.startsWith('chi_')) {
+            if(id>=27) return showError("字牌不能吃"); if(cTotal>10) return showError("容量不足");
+            let mT = [];
+            if(currentMode==='chi_L') { if(id%9>6) return showError("越界"); mT=[obj, {id:id+1,aka:false}, {id:id+2,aka:false}]; }
+            else if(currentMode==='chi_C') { if(id%9<1||id%9>7) return showError("越界"); mT=[{id:id-1,aka:false}, obj, {id:id+1,aka:false}]; }
+            else if(currentMode==='chi_R') { if(id%9<2) return showError("越界"); mT=[{id:id-2,aka:false}, {id:id-1,aka:false}, obj]; }
+            state.melds.push({ type: 'chi', tiles: mT, isOpen: true });
+        } else if(['pon','minkan','ankan'].includes(currentMode)) {
+            if(cTotal>10) return showError("容量不足");
+            let mT = [obj, {id,aka:false}, {id,aka:false}]; if(currentMode.includes('kan')) mT.push({id,aka:false});
+            state.melds.push({ type: currentMode==='pon'?'pon':(currentMode==='minkan'?'minkan':'ankan'), tiles: mT, isOpen: currentMode!=='ankan' });
+        }
+        else if(currentMode === 'dora') state.doraInd.push(obj); else if(currentMode === 'ura') state.uraInd.push(obj);
+        renderBoard();
+    }
+
+    function renderBoard() {
+        const createEl = (t, fn) => {
+            if(!t) return null; let s=t.id<9?0:t.id<18?1:t.id<27?2:3, l=t.id<27?t.id%9:t.id-27;
+            let el=document.createElement('div'); el.className=`tile sm ${TILES[s].s} ${t.aka?'aka':''}`; el.innerText=TILES[s][LANG==='zh'?'l':'lJa'][l]; if(fn) el.onclick=fn; return el;
+        };
+        let vd=document.getElementById('view-dora'); vd.innerHTML=''; state.doraInd.forEach((t,i)=>vd.appendChild(createEl(t, ()=>{state.doraInd.splice(i,1);renderBoard();})));
+        if(state.uraInd.length>0) { let sp=document.createElement('div');sp.innerText=" | ";sp.style.color="#9ca3af";vd.appendChild(sp); state.uraInd.forEach((t,i)=>vd.appendChild(createEl(t, ()=>{state.uraInd.splice(i,1);renderBoard();}))); }
+        let vm=document.getElementById('view-melds'); vm.innerHTML=''; state.melds.forEach((m,i)=>{ let g=document.createElement('div');g.className='hand-group';m.tiles.forEach(t=>g.appendChild(createEl(t, ()=>{state.melds.splice(i,1);renderBoard();}))); vm.appendChild(g); });
+        let vc=document.getElementById('view-closed'); vc.innerHTML=''; state.closed.forEach((t,i)=>vc.appendChild(createEl(t, ()=>{state.closed.splice(i,1);renderBoard();})));
+        let va=document.getElementById('view-agari'); va.innerHTML=''; if(state.agari) va.appendChild(createEl(state.agari, ()=>{state.agari=null;renderBoard();}));
+        document.getElementById('hand-count-title').innerText = `Player Hand (${state.closed.length+state.melds.length*3+(state.agari?1:0)}/14)`;
+    }
+    function resetAll() { state = {closed:[],agari:null,melds:[],doraInd:[],uraInd:[]}; document.getElementById('result-box').style.display='none'; showError(""); renderBoard(); }
+    function showError(msg) { let e=document.getElementById('error-msg'); e.innerText=msg; e.style.display=msg?'block':'none'; }
+
+    // ==========================================
+    // 3. 稳健的回溯拆解核心
+    // ==========================================
+    function getCounts(arr) { let c=new Array(34).fill(0); arr.forEach(id=>c[id]++); return c; }
+    function findMelds(c) {
+        let f = c.findIndex(x=>x>0); if(f===-1) return [[]]; let res = [];
+        if(c[f]>=3) { c[f]-=3; for(let s of findMelds(c)) res.push([[f,f,f],...s]); c[f]+=3; }
+        if(f<27 && f%9<=6 && c[f+1]>0 && c[f+2]>0) { c[f]--;c[f+1]--;c[f+2]--; for(let s of findMelds(c)) res.push([[f,f+1,f+2],...s]); c[f]++;c[f+1]++;c[f+2]++; }
+        return res;
+    }
+    function getPartitions() {
+        let aId = [...state.closed.map(t=>t.id), state.agari.id]; let c = getCounts(aId); let p = [];
+        let isOp = state.melds.some(m=>m.isOpen); let n = 4 - state.melds.length;
+
+        if(!isOp && state.melds.length===0) {
+            if(c.filter(x=>x===2).length===7) p.push({type:'chiitoitsu'});
+            let yao = [0,8,9,17,18,26,27,28,29,30,31,32,33];
+            if(yao.every(y=>c[y]>=1) && yao.some(y=>c[y]===2)) p.push({type:'kokushi'});
+        }
+        for(let i=0;i<34;i++) {
+            if(c[i]>=2) { c[i]-=2; for(let sm of findMelds(c)) { if(sm.length===n) {
+                let am = sm.map(m=>({type:m[0]===m[1]?'ankou':'shuntsu', tiles:m, isOpen:false, isKan:false}));
+                state.melds.forEach(m=>am.push({type:m.type==='chi'?'shuntsu':(m.type==='ankan'?'ankou':'koutsu'), tiles:m.tiles.map(t=>t.id), isKan:m.type.includes('kan'), isOpen:m.isOpen}));
+                p.push({type:'standard', pair:i, melds:am});
+            }} c[i]+=2; }
+        }
+        return p;
+    }
+    function getWaitShapes(part, agId) {
+        if(part.type==='chiitoitsu') return [{s:'tanki', r:false, f:2}];
+        if(part.type==='kokushi') {
+            let cC = getCounts(state.closed.map(t=>t.id)); let yao = [0,8,9,17,18,26,27,28,29,30,31,32,33];
+            return [{s:yao.every(y=>cC[y]===1)?'kokushi13':'tanki', r:false, f:0}];
+        }
+        let s = [];
+        if(part.pair===agId) s.push({s:'tanki', r:false, f:2});
+        part.melds.forEach((m, idx) => {
+            if(m.isOpen) return;
+            if(m.type==='shuntsu' && m.tiles.includes(agId)) {
+                let i = m.tiles.indexOf(agId); let isP = (i===0 && agId%9===6) || (i===2 && agId%9===2); let isK = (i===1);
+                s.push({s:(!isP&&!isK)?'ryanmen':(isK?'kanchan':'penchan'), r:(!isP&&!isK), f:(!isP&&!isK)?0:2, mIdx:idx});
+            }
+            if(m.type==='ankou' && m.tiles.includes(agId)) s.push({s:'shanpon', r:false, f:0, mIdx:idx});
+        });
+        return s;
+    }
+
+    // ==========================================
+    // 4. 完美符合天凤/雀魂的评估引擎
+    // ==========================================
+    function evalYaku(part, w, cond, isOp) {
+        let y=[], yk=[]; let h=0, ym=0;
+        const pY = (k,v) => { y.push({k,v}); h+=v; }; const pYm = (k,v) => { yk.push({k,v}); ym+=v; };
+
+        let cId = state.closed.map(t=>t.id); 
+        let allIds = [...cId, state.agari.id];
+        state.melds.forEach(m => allIds.push(...m.tiles.map(t=>t.id)));
+
+        let cC = getCounts(cId); let cA = getCounts(allIds);
+        
+        if(cond.rinshan) { cond.ippatsu=false; cond.haitei=false; cond.chankan=false; }
+        if(cond.chankan) { cond.ippatsu=false; cond.haitei=false; }
+        if(cond.daburii) cond.riichi=false;
+
+        // 全面清除双倍役满：所有底层参数严格为 1
+        if(cond.tenhou) pYm(cond.jikaze===27?'yk_tenhou':'yk_chiihou', 1);
+        if(cA[31]>=3 && cA[32]>=3 && cA[33]>=3) pYm('yk_daisan', 1);
+        if(allIds.every(id=>id>=27)) pYm('yk_tsuuiisou', 1);
+        if(allIds.every(id=>[19,20,21,23,25,32].includes(id))) pYm('yk_ryuuiisou', 1);
+
+        if(part.type === 'kokushi') {
+            pYm(w.s==='kokushi13'?'yk_kokushi13':'yk_kokushi', 1);
+            return { list: yk, han: 0, ym };
+        }
+
+        if (part.type==='standard') {
+            let ac = part.melds.filter((m,i) => m.type==='ankou' && !(cond.agariType==='ron' && w.s==='shanpon' && i===w.mIdx)).length;
+            if(ac===4) pYm(w.s==='tanki'?'yk_suuankoutanki':'yk_suuankou', 1);
+            if(part.melds.filter(m=>m.isKan).length===4) pYm('yk_suukantsu', 1);
+            
+            let ws = [cA[27], cA[28], cA[29], cA[30]];
+            if(ws.filter(x=>x>=3).length===4) pYm('yk_daisuushii', 1);
+            else if(ws.filter(x=>x>=3).length===3 && ws.filter(x=>x>=2).length===4) pYm('yk_shousuushii', 1);
+            
+            if(state.melds.length===0 && new Set(allIds.map(i=>Math.floor(i/9))).size===1 && allIds[0]<27) {
+                let off=Math.floor(allIds[0]/9)*9, req=[3,1,1,1,1,1,1,1,3], chu=true, jun=true;
+                for(let i=0;i<9;i++){ if(cA[off+i]<req[i]) chu=false; if(cC[off+i]<req[i]) jun=false; }
+                if(chu) pYm(jun?'yk_junsei':'yk_chuuren', 1);
+            }
+            
+            let isChinroutou = allIds.every(id=>(id%9===0||id%9===8)&&id<27);
+            if(isChinroutou && part.melds.every(m=>m.tiles[0]===m.tiles[1])) pYm('yk_chinroutou', 1);
+        }
+
+        if(ym>0) return { list: yk, han: 0, ym };
+
+        // 普通役判定
+        if(cond.riichi && !isOp) pY('yk_riichi', 1); if(cond.daburii && !isOp) pY('yk_daburii', 2);
+        if(cond.ippatsu && !isOp) pY('yk_ippatsu', 1); if(cond.rinshan) pY('yk_rinshan', 1);
+        if(cond.chankan) pY('yk_chankan', 1); if(cond.haitei) pY(cond.agariType==='tsumo'?'yk_haitei':'yk_houtei', 1);
+        if(!isOp && cond.agariType==='tsumo') pY('yk_tsumo', 1);
+        if(allIds.every(id=>id%9!==0 && id%9!==8 && id<27)) pY('yk_tanyao', 1);
+
+        if(part.type==='chiitoitsu') {
+            pY('yk_chiitoi', 2);
+            let s1=allIds.every(id=>id>=18&&id<=26), s2=allIds.every(id=>id<=8), s3=allIds.every(id=>id>=9&&id<=17);
+            if(s1||s2||s3) pY('yk_chinitsu', 6); else if((allIds.every(id=>id>=18&&id<=26||id>=27)||allIds.every(id=>id<=8||id>=27)||allIds.every(id=>id>=9&&id<=17||id>=27))) pY('yk_honitsu', 3);
+            if(allIds.every(id=>id%9===0||id%9===8||id>=27)) pY('yk_honroutou', 2);
+        } else if(part.type==='standard') {
+            let sc=part.melds.filter(m=>m.type==='shuntsu').length; let kc=part.melds.filter(m=>m.tiles[0]===m.tiles[1]).length;
+            part.melds.filter(m=>m.tiles[0]===m.tiles[1]).forEach(m=>{ if(m.tiles[0]===cond.bakaze||m.tiles[0]===cond.jikaze||m.tiles[0]>=31) pY('yk_yakuhai', 1); });
+            if(!isOp && sc===4 && part.pair!==cond.bakaze && part.pair!==cond.jikaze && part.pair<31 && w.r) pY('yk_pinfu', 1);
+            if(!isOp && sc>=2) {
+                let ss=part.melds.filter(m=>m.type==='shuntsu').map(m=>m.tiles[0]).sort(); let pk=0;
+                for(let i=0;i<ss.length-1;i++){ if(ss[i]===ss[i+1]){pk++;i++;} }
+                if(pk===1) pY('yk_iipeikou', 1); if(pk===2) pY('yk_ryanpeikou', 3);
+            }
+            if(kc===4) pY('yk_toitoi', 2);
+            let ac=part.melds.filter((m,i)=>m.type==='ankou' && !(cond.agariType==='ron'&&w.s==='shanpon'&&i===w.mIdx)).length;
+            if(ac===3) pY('yk_sanankou', 2); if(part.melds.filter(m=>m.isKan).length===3) pY('yk_sankantsu', 2);
+            
+            let cs = s => { for(let i=0;i<=6;i++) if(s.includes(i)&&s.includes(i+9)&&s.includes(i+18)) return true; return false; };
+            if(sc>=3) {
+                let sss = part.melds.filter(m=>m.type==='shuntsu').map(m=>m.tiles[0]);
+                if(cs(sss)) pY('yk_sanshoku', isOp?1:2);
+                if([0,9,18].some(o=>sss.includes(o)&&sss.includes(o+3)&&sss.includes(o+6))) pY('yk_ittsu', isOp?1:2);
+            }
+            if(kc>=3 && cs(part.melds.filter(m=>m.tiles[0]===m.tiles[1]).map(m=>m.tiles[0]))) pY('yk_sanshokudoukou', 2);
+
+            let isR = id=>(id%9===0||id%9===8)&&id<27, isY = id=>isR(id)||id>=27;
+            let ht = part.melds.every(m=>m.tiles.some(isR)) && isR(part.pair);
+            let hy = part.melds.every(m=>m.tiles.some(isY)) && isY(part.pair);
+            if(ht && sc>0) pY('yk_junchan', isOp?2:3); else if(hy && sc>0) pY('yk_chanta', isOp?1:2); else if(hy && sc===0) pY('yk_honroutou', 2);
+            if(cA[31]>=2&&cA[32]>=2&&cA[33]>=2&&(cA[31]===2||cA[32]===2||cA[33]===2)) pY('yk_shousangen', 2);
+
+            let iM=allIds.every(i=>i<=8), iP=allIds.every(i=>i>=9&&i<=17), iS=allIds.every(i=>i>=18&&i<=26);
+            if(iM||iP||iS) pY('yk_chinitsu', isOp?5:6); else if((allIds.every(i=>i<=8||i>=27)||allIds.every(i=>i>=9&&i<=17||i>=27)||allIds.every(i=>i>=18&&i<=26||i>=27))&&!allIds.every(i=>i>=27)) pY('yk_honitsu', isOp?2:3);
+        }
+        return { list: y, han: h, ym: 0 };
+    }
+
+    // 严谨符数推演
+    function calcFuEx(part, w, cond, isOp, hasP) {
+        let fl = [], t = 20; const pF = (k,v) => { fl.push({k,v}); t+=v; };
+        if(part.type==='chiitoitsu') return { f: 25, list: [{k:'fu_chiitoi', v:25}] };
+        if(part.type==='kokushi') return { f: 20, list: [], r: 20 };
+        pF('fu_base', 20);
+        if(cond.agariType==='tsumo') { if(!hasP) pF('fu_tsumo', 2); } else if(!isOp) pF('fu_ron_closed', 10);
+        
+        if(part.type==='standard') {
+            if(part.pair===cond.bakaze) pF('fu_pair_bakaze', 2);
+            if(part.pair===cond.jikaze) pF('fu_pair_jikaze', 2);
+            if(part.pair>=31) pF('fu_pair_sangen', 2);
+            
+            part.melds.forEach((m,i) => {
+                if(m.tiles[0]===m.tiles[1]) {
+                    let o = m.isOpen; if(cond.agariType==='ron'&&w.s==='shanpon'&&i===w.mIdx) o=true;
+                    let b = 2, k = 'fu_minkou';
+                    if(!o && m.tiles.length===3) { b=4; k='fu_ankou'; }
+                    if(o && m.isKan) { b=8; k='fu_minkan'; }
+                    if(!o && m.isKan) { b=16; k='fu_ankan'; }
+                    if(m.tiles[0]%9===0||m.tiles[0]%9===8||m.tiles[0]>=27) b*=2;
+                    pF(k, b);
+                }
+            });
+            if(w.f>0) pF('fu_wait', w.f);
+        }
+        if(hasP && cond.agariType==='tsumo') return { f: 20, list: [{k:'fu_pinfu_t', v:20}], r: 20 };
+        if(t===20) pF('fu_pinfu_r', 10); 
+        return { f: Math.ceil(t/10)*10, list: fl, r: t };
+    }
+
+    // ==========================================
+    // 5. 带错误捕捉的主结算器
+    // ==========================================
+    function safeCalculate() {
+        try { calculate(); } catch(e) {
+            console.error(e); showError("系统发生崩溃！原因：" + e.message);
+        }
+    }
+
+    function calculate() {
+        if(!state.agari || state.closed.length+state.melds.length*3!==13) return showError(LANG==='zh'?"牌姿不完整(需13+1)":"手牌が不完全です");
+        let cond = {
+            agariType: document.getElementById('set-agari').value, bakaze: parseInt(document.getElementById('set-bakaze').value),
+            jikaze: parseInt(document.getElementById('set-jikaze').value), riichi: document.getElementById('chk-riichi').checked,
+            daburii: document.getElementById('chk-daburii').checked, ippatsu: document.getElementById('chk-ippatsu').checked,
+            rinshan: document.getElementById('chk-rinshan').checked, chankan: document.getElementById('chk-chankan').checked,
+            haitei: document.getElementById('chk-haitei').checked, tenhou: document.getElementById('chk-tenhou').checked
+        };
+        let isOp = state.melds.some(m=>m.isOpen);
+        let allT = [...state.closed, ...state.melds.flatMap(m=>m.tiles), state.agari];
+        
+        let nD = id=>id<9?(id===8?0:id+1):id<18?(id===17?9:id+1):id<27?(id===26?18:id+1):id<31?(id===30?27:id+1):id===33?31:id+1;
+        let dC=0, aC=allT.filter(t=>t.aka).length, uC=0;
+        state.doraInd.map(t=>nD(t.id)).forEach(dId => dC+=allT.filter(t=>t.id===dId).length);
+        if(cond.riichi || cond.daburii) state.uraInd.map(t=>nD(t.id)).forEach(uId => uC+=allT.filter(t=>t.id===uId).length);
+
+        let parts = getPartitions();
+        if(parts.length===0) return showError(LANG==='zh'?"❌ 错和：无法拆解为合法面子 (注:日麻七对子必须是7种不同的对子)":"❌ チョンボ");
+
+        let bst = null, mPt = -1;
+        parts.forEach(p => {
+            let ws = getWaitShapes(p, state.agari.id); if(ws.length===0) ws = [{s:'',r:false,f:0}];
+            ws.forEach(w => {
+                let r = evalYaku(p, w, cond, isOp); if(r.han===0 && r.ym===0) return;
+                if(r.ym===0) { let dh = dC+aC+uC; if(dh>0) { r.list.push({k:'yk_dora', v:dh}); r.han+=dh; } }
+                
+                let fD = calcFuEx(p, w, cond, isOp, r.list.some(y=>y.k==='yk_pinfu'));
+                let pt=0, lim="";
+                if(r.ym>0) { pt=r.ym*8000; lim='pt_yakuman'; } else if(r.han>=13) { pt=8000; lim="pt_kazeyaku"; } else if(r.han>=11) { pt=6000; lim="pt_sanbaiman"; } else if(r.han>=8) { pt=4000; lim="pt_baiman"; } else if(r.han>=6) { pt=3000; lim="pt_haneman"; } else {
+                    let raw = fD.f * Math.pow(2, r.han+2); if(r.han>=5 || raw>2000) { pt=2000; lim="pt_mangan"; } else pt=raw;
+                }
+                if(pt>mPt || (pt===mPt && (r.ym>(bst?bst.ym:0) || r.han>(bst?bst.han:0)))) { mPt=pt; bst={...r, fD, pt, lim}; }
+            });
+        });
+        if(!bst) return showError(LANG==='zh'?"❌ 错和：虽然牌型合法，但无役":"❌ 役がありません");
+
+        showError(""); document.getElementById('result-box').style.display='block';
+        document.getElementById('res-title').innerText = bst.ym>0 ? (bst.ym===1?t('pt_yakuman'):`${bst.ym}倍${t('pt_yakuman')}`) : `${bst.han} ${t('txt_fan')} ${bst.fD.f} ${t('txt_fu')}`;
+        document.getElementById('res-limit').innerText = bst.lim ? t(bst.lim) : '';
+        
+        let yUl = document.getElementById('res-yaku'); yUl.innerHTML='';
+        bst.list.forEach(y => { let li=document.createElement('li'); if(bst.ym>0) li.className='yakuman'; li.innerHTML=`<span>${t(y.k)}</span><span style="font-weight:bold">${y.v} ${bst.ym>0?t('pt_yakuman'):t('txt_fan')}</span>`; yUl.appendChild(li); });
+        
+        let fBx = document.getElementById('res-fu-box');
+        if(bst.ym>0) fBx.style.display='none'; else {
+            fBx.style.display='block'; let fUl=document.getElementById('res-fu-list'); fUl.innerHTML='';
+            bst.fD.list.forEach(f => fUl.innerHTML+=`<div class="fu-row"><span>${t(f.k)}</span><span>+${f.v}</span></div>`);
+            fUl.innerHTML += `<div class="fu-row total"><span>${LANG==='zh'?'最终进位符数':'合計'}</span><span>${bst.fD.f} ${t('txt_fu')}</span></div>`;
+        }
+        
+        let pStr = "", cl = n=>Math.ceil(n/100)*100, isO = cond.jikaze===27;
+        if(cond.agariType==='ron') pStr=`${t('ron_txt')} ${cl(bst.pt*(isO?6:4))}`; else pStr=isO?`${t('tsumo_all')} ${cl(bst.pt*2)}`:`${t('tsumo_ko')} ${cl(bst.pt*2)} / ${LANG==='zh'?'子家':'子'} ${cl(bst.pt)}`;
+        document.getElementById('res-points').innerText = pStr;
+        document.getElementById('result-box').scrollIntoView({behavior:'smooth'});
+    }
+    initUI();
+</script>
+</body>
+</html>
