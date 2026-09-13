@@ -67,6 +67,37 @@ void solve() {
     else cout << k + 1 << "\n";
 }
 
+#include <bits/stdc++.h>
+using namespace std;
+
+const int N = 4000005;
+int a[N];
+
+void solve() {
+    int n;
+    cin >> n;
+    for (int i = 1; i <= n; ++i) a[i] = i;
+    for (int m = 1; ; ++m) {
+        int x = 2 * m * (m + 1);
+        if (x + 1 > n) break;
+        swap(a[x - 1], a[x]);
+    }
+    for (int i = 1; i <= n; ++i) {
+        cout << a[i] << (i == n ? '\n' : ' ');
+    }
+}
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+    int t;
+    if (cin >> t) {
+        while (t--) solve();
+    }
+    return 0;
+}
+
+
 int main() {
     ios::sync_with_stdio(false);
     cin.tie(nullptr);
