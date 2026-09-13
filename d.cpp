@@ -105,6 +105,107 @@ int main() {
     if (cin >> t) {
         while (t--) solve();
     }
+    return 
+0;
+}
+
+
+#include <bits/stdc++.h>
+using namespace std;
+
+const int N = 1000005;
+int sa[N], rnk[N*2], old_rnk[N*2], lcp[N], id[N], cnt[N];
+int st_l[20][N], st_r[20][N], lg[N], R[N];
+int n;
+string s;
+
+void solve() {
+    cin >> s;
+    n = s.length();
+    int m = max(256, n);
+    fill(cnt, cnt + m, 0);
+    fill(rnk, rnk + n * 2, -1);
+    for(int i = 0; i < n; ++i) cnt[rnk[i] = s[i]]++;
+    for(int i = 1; i < m; ++i) cnt[i] += cnt[i-1];
+    for(int i = n - 1; i >= 0; --i) sa[--cnt[rnk[i]]] = i;
+    for(int w = 1; w < n; w <<= 1) {
+        int p = 0;
+        for(int i = n - w; i < n; ++i) id[p++] = i;
+        for(int i = 0; i < n; ++i) if(sa[i] >= w) id[p++] = sa[i] - w;
+        fill(cnt, cnt + m, 0);
+        for(int i = 0; i < n; ++i) cnt[rnk[i]]++;
+        for(int i = 1; i < m; ++i) cnt[i] += cnt[i-1];
+        for(int i = n - 1; i >= 0; --i) sa[--cnt[rnk[id[i]]]] = id[i];
+        copy(rnk, rnk + n * 2, old_rnk);
+        p = 0;
+        for(int i = 0; i < n; ++i) {
+            rnk[sa[i]] = (i > 0 && old_rnk[sa[i]] == old_rnk[sa[i-1]] && old_rnk[sa[i]+w] == old_rnk[sa[i-1]+w]) ? p : ++p;
+        }
+        if(p == n - 1) break;
+        m = p + 1;
+    }
+    for(int i = 0, k = 0; i < n; ++i) {
+        if(rnk[i] == 0) { lcp[0] = 0; continue; }
+        int j = sa[rnk[i]-1];
+        while(i + k < n && j + k < n && s[i+k] == s[j+k]) k++;
+        lcp[rnk[i]] = k;
+        if(k) k--;
+    }
+    for(int i = 0; i < n; ++i) st_l[0][i] = lcp[i];
+    for(int j = 1; j <= lg[n]; ++j) {
+        for(int i = 0; i + (1 << j) <= n; ++i) {
+            st_l[j][i] = min(st_l[j-1][i], st_l[j-1][i+(1<<(j-1))]);
+        }
+    }
+    for(int i = 0; i < n; ++i) st_r[0][i] = i;
+    for(int j = 1; j <= lg[n]; ++j) {
+        for(int i = 0; i + (1 << j) <= n; ++i) {
+            int L = st_r[j-1][i], R_idx = st_r[j-1][i+(1<<(j-1))];
+            st_r[j][i] = (rnk[L] < rnk[R_idx]) ? L : R_idx;
+        }
+    }
+    for(int i = 0, l = 0, r = -1; i < n; ++i) {
+        int k = (i > r) ? 1 : min(R[l + r - i], r - i + 1);
+        while(0 <= i - k && i + k < n && s[i - k] == s[i + k]) k++;
+        R[i] = k - 1;
+        if(i + k - 1 > r) {
+            l = i - k + 1;
+            r = i + k - 1;
+        }
+    }
+    auto get_lcp = [&](int u, int v) {
+        if(u == v) return n - u;
+        u = rnk[u]; v = rnk[v];
+        if(u > v) swap(u, v);
+        u++;
+        int k = lg[v - u + 1];
+        return min(st_l[k][u], st_l[k][v - (1<<k) + 1]);
+    };
+    for(int i = 0; i < n; ++i) {
+        int L = i - R[i], R_idx = i, k = lg[R_idx - L + 1];
+        int left = st_r[k][L], right = st_r[k][R_idx - (1<<k) + 1];
+        int best = (rnk[left] < rnk[right]) ? left : right;
+        int r_m = i - best, ans = r_m;
+        for(int r = 0; r <= r_m; ++r) {
+            if(get_lcp(i - r, i - r_m) >= 2 * r + 1) {
+                ans = r;
+                break;
+            }
+        }
+        cout << ans << (i == n - 1 ? "" : " ");
+    }
+    cout << "\n";
+}
+
+int main() {
+    ios::sync_with_stdio(0); cin.tie(0);
+    lg[1] = 0;
+    for(int i = 2; i < N; ++i) lg[i] = lg[i/2] + 1;
+    int t;
+    cin >> t;
+    while(t--) solve();
     return 0;
 }
+
+
 
