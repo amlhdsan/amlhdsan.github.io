@@ -1,0 +1,268 @@
+# ========== 代理节点配置 ==========
+proxies:
+  - name: "VPS-Hysteria2"
+    type: hysteria2
+    server: 66.245.221.233
+    port: 443
+    password: "381412amlhd"
+    sni: www.bing.com
+    skip-cert-verify: true
+    # 以下为可选优化参数
+    up: "100 Mbps"
+    down: "500 Mbps"
+
+# ========== 规则集配置（可选，用于增强分流）==========
+rule-providers:
+  reject:
+    type: http
+    behavior: domain
+    url: "https://cdn.jsdelivr.net/gh/Loyalsoldier/clash-rules@release/reject.txt"
+    path: ./ruleset/reject.yaml
+    interval: 86400
+
+  icloud:
+    type: http
+    behavior: domain
+    url: "https://cdn.jsdelivr.net/gh/Loyalsoldier/clash-rules@release/icloud.txt"
+    path: ./ruleset/icloud.yaml
+    interval: 86400
+
+  apple:
+    type: http
+    behavior: domain
+    url: "https://cdn.jsdelivr.net/gh/Loyalsoldier/clash-rules@release/apple.txt"
+    path: ./ruleset/apple.yaml
+    interval: 86400
+
+  google:
+    type: http
+    behavior: domain
+    url: "https://cdn.jsdelivr.net/gh/Loyalsoldier/clash-rules@release/google.txt"
+    path: ./ruleset/google.yaml
+    interval: 86400
+
+  proxy:
+    type: http
+    behavior: domain
+    url: "https://cdn.jsdelivr.net/gh/Loyalsoldier/clash-rules@release/proxy.txt"
+    path: ./ruleset/proxy.yaml
+    interval: 86400
+
+  direct:
+    type: http
+    behavior: domain
+    url: "https://cdn.jsdelivr.net/gh/Loyalsoldier/clash-rules@release/direct.txt"
+    path: ./ruleset/direct.yaml
+    interval: 86400
+
+  gfw:
+    type: http
+    behavior: domain
+    url: "https://cdn.jsdelivr.net/gh/Loyalsoldier/clash-rules@release/gfw.txt"
+    path: ./ruleset/gfw.yaml
+    interval: 86400
+
+  tld-not-cn:
+    type: http
+    behavior: domain
+    url: "https://cdn.jsdelivr.net/gh/Loyalsoldier/clash-rules@release/tld-not-cn.txt"
+    path: ./ruleset/tld-not-cn.yaml
+    interval: 86400
+
+  telegramcidr:
+    type: http
+    behavior: ipcidr
+    url: "https://cdn.jsdelivr.net/gh/Loyalsoldier/clash-rules@release/telegramcidr.txt"
+    path: ./ruleset/telegramcidr.yaml
+    interval: 86400
+
+  cncidr:
+    type: http
+    behavior: ipcidr
+    url: "https://cdn.jsdelivr.net/gh/Loyalsoldier/clash-rules@release/cncidr.txt"
+    path: ./ruleset/cncidr.yaml
+    interval: 86400
+
+  lancidr:
+    type: http
+    behavior: ipcidr
+    url: "https://cdn.jsdelivr.net/gh/Loyalsoldier/clash-rules@release/lancidr.txt"
+    path: ./ruleset/lancidr.yaml
+    interval: 86400
+
+  applications:
+    type: http
+    behavior: classical
+    url: "https://cdn.jsdelivr.net/gh/Loyalsoldier/clash-rules@release/applications.txt"
+    path: ./ruleset/applications.yaml
+    interval: 86400
+
+# ========== 代理组配置 ==========
+proxy-groups:
+  - name: "🚀 节点选择"
+    type: select
+    proxies:
+      - "VPS-Hysteria2"
+      - "DIRECT"
+
+  - name: "🎬 流媒体"
+    type: select
+    proxies:
+      - "VPS-Hysteria2"
+      - "DIRECT"
+
+  - name: "🤖 AI服务"
+    type: select
+    proxies:
+      - "VPS-Hysteria2"
+      - "DIRECT"
+
+# ========== 规则配置 ==========
+rules:
+  # ===== 1. 规则集分流（如果不想用可以删除本块）=====
+  - RULE-SET,applications,DIRECT
+  - RULE-SET,icloud,DIRECT
+  - RULE-SET,apple,DIRECT
+  - RULE-SET,google,🚀 节点选择
+  - RULE-SET,proxy,🚀 节点选择
+  - RULE-SET,direct,DIRECT
+  - RULE-SET,lancidr,DIRECT
+  - RULE-SET,cncidr,DIRECT
+  - RULE-SET,telegramcidr,🚀 节点选择
+
+  # ===== 2. 国内网站强制直连 =====
+  # 通用规则
+  - DOMAIN-SUFFIX,cn,DIRECT
+  - GEOIP,CN,DIRECT,no-resolve
+  - GEOSITE,CN,DIRECT
+
+  # 常见国内网站关键词
+  - DOMAIN-KEYWORD,baidu,DIRECT
+  - DOMAIN-KEYWORD,taobao,DIRECT
+  - DOMAIN-KEYWORD,alipay,DIRECT
+  - DOMAIN-KEYWORD,qq,DIRECT
+  - DOMAIN-KEYWORD,weixin,DIRECT
+  - DOMAIN-KEYWORD,bilibili,DIRECT
+  - DOMAIN-KEYWORD,bytedance,DIRECT
+  - DOMAIN-KEYWORD,zhihu,DIRECT
+  - DOMAIN-KEYWORD,jd,DIRECT
+  - DOMAIN-KEYWORD,meituan,DIRECT
+  - DOMAIN-KEYWORD,douyin,DIRECT
+  - DOMAIN-KEYWORD,pinduoduo,DIRECT
+
+  # 局域网与保留地址
+  #- IP-CIDR,192.168.0.0/16,DIRECT,no-resolve
+  #- IP-CIDR,10.0.0.0/8,DIRECT,no-resolve
+  #- IP-CIDR,172.16.0.0/12,DIRECT,no-resolve
+  #- IP-CIDR,127.0.0.0/8,DIRECT,no-resolve
+  #- IP-CIDR,100.64.0.0/10,DIRECT,no-resolve
+  #- IP-CIDR,17.0.0.0/8,DIRECT,no-resolve
+
+  # ===== 3. AI 服务走代理 =====
+  # OpenAI
+  - DOMAIN-KEYWORD,openai,🤖 AI服务
+  - DOMAIN-SUFFIX,openai.com,🤖 AI服务
+  - DOMAIN-SUFFIX,chatgpt.com,🤖 AI服务
+  - DOMAIN-SUFFIX,ai.com,🤖 AI服务
+  - DOMAIN-SUFFIX,oaistatic.com,🤖 AI服务
+  - DOMAIN-SUFFIX,oaiusercontent.com,🤖 AI服务
+  - DOMAIN-KEYWORD,chatgpt,🤖 AI服务
+
+  # Anthropic (Claude)
+  - DOMAIN-SUFFIX,anthropic.com,🤖 AI服务
+  - DOMAIN-SUFFIX,claude.ai,🤖 AI服务
+
+  # Google (Gemini/Bard/DeepMind)
+  - DOMAIN-SUFFIX,gemini.google.com,🤖 AI服务
+  - DOMAIN-SUFFIX,bard.google.com,🤖 AI服务
+  - DOMAIN-SUFFIX,deepmind.google,🤖 AI服务
+  - DOMAIN-SUFFIX,deepmind.com,🤖 AI服务
+  - DOMAIN-SUFFIX,ai.google.dev,🤖 AI服务
+  - DOMAIN-SUFFIX,generativeai.google,🤖 AI服务
+  - DOMAIN-SUFFIX,proactivebackend-pa.googleapis.com,🤖 AI服务
+  - DOMAIN-KEYWORD,generativelanguage,🤖 AI服务
+
+  # Meta (Llama)
+  - DOMAIN-SUFFIX,meta.ai,🤖 AI服务
+  - DOMAIN-SUFFIX,llama.com,🤖 AI服务
+  - DOMAIN-SUFFIX,llama.meta.com,🤖 AI服务
+
+  # 其他海外AI服务
+  - DOMAIN-SUFFIX,perplexity.ai,🤖 AI服务
+  - DOMAIN-SUFFIX,pplx.ai,🤖 AI服务
+  - DOMAIN-KEYWORD,perplexity,🤖 AI服务
+  - DOMAIN-SUFFIX,x.ai,🤖 AI服务
+  - DOMAIN-KEYWORD,grok,🤖 AI服务
+  - DOMAIN-SUFFIX,poe.com,🤖 AI服务
+  - DOMAIN-SUFFIX,you.com,🤖 AI服务
+
+  # Hugging Face (AI模型社区)
+  - DOMAIN-SUFFIX,huggingface.co,🤖 AI服务
+  - DOMAIN-SUFFIX,hf.co,🤖 AI服务
+
+  # 平台/聚合类AI服务
+  - DOMAIN-SUFFIX,openrouter.ai,🤖 AI服务
+  - DOMAIN-SUFFIX,together.ai,🤖 AI服务
+
+  # Cursor AI 编辑器
+  - DOMAIN-SUFFIX,cursor.com,🤖 AI服务
+  - DOMAIN-SUFFIX,cursor.sh,🤖 AI服务
+  - DOMAIN-SUFFIX,cursor-cdn.com,🤖 AI服务
+  - DOMAIN-SUFFIX,workos.com,🤖 AI服务
+  - DOMAIN-SUFFIX,challenges.cloudflare.com,🤖 AI服务
+
+  # Amazon Kiro / Amazon AI 服务
+  - DOMAIN-SUFFIX,kiro.dev,🤖 AI服务
+  - DOMAIN-SUFFIX,amazonkiro.com,🤖 AI服务
+  - DOMAIN-KEYWORD,kiro,🤖 AI服务
+  - DOMAIN-SUFFIX,aws.amazon.com,🤖 AI服务
+  - DOMAIN-SUFFIX,amazonaws.com,🤖 AI服务
+  - DOMAIN-SUFFIX,bedrock.aws,🤖 AI服务
+  - DOMAIN-KEYWORD,amazonbedrock,🤖 AI服务
+  - DOMAIN-SUFFIX,q.aws.amazon.com,🤖 AI服务
+  - DOMAIN-SUFFIX,codecatalyst.aws,🤖 AI服务
+  - DOMAIN-SUFFIX,sagemaker.aws,🤖 AI服务
+
+  # 国内AI服务 (默认直连，如需走代理请取消注释并修改策略)
+  # - DOMAIN-SUFFIX,deepseek.com,DIRECT
+  # - DOMAIN-SUFFIX,yiyan.baidu.com,DIRECT
+  # - DOMAIN-SUFFIX,tongyi.aliyun.com,DIRECT
+  # - DOMAIN-SUFFIX,doubao.com,DIRECT
+  # - DOMAIN-SUFFIX,chatglm.cn,DIRECT
+  # - DOMAIN-SUFFIX,xinghuo.xfyun.cn,DIRECT
+  # - DOMAIN-SUFFIX,kimi.moonshot.cn,DIRECT
+  # - DOMAIN-SUFFIX,yuanbao.tencent.com,DIRECT
+
+  # ===== 4. 流媒体走代理 =====
+  - DOMAIN-KEYWORD,youtube,🎬 流媒体
+  - DOMAIN-KEYWORD,netflix,🎬 流媒体
+  - DOMAIN-KEYWORD,disney,🎬 流媒体
+  - DOMAIN-KEYWORD,hbo,🎬 流媒体
+  - DOMAIN-KEYWORD,hulu,🎬 流媒体
+  - DOMAIN-KEYWORD,spotify,🎬 流媒体
+  - DOMAIN-KEYWORD,twitch,🎬 流媒体
+  - DOMAIN-SUFFIX,googlevideo.com,🎬 流媒体
+  - DOMAIN-SUFFIX,ytimg.com,🎬 流媒体
+  - DOMAIN-SUFFIX,ggpht.com,🎬 流媒体
+  - DOMAIN-SUFFIX,fastly.com,🎬 流媒体
+
+  # ===== 5. 其他常用国外服务走代理 =====
+  - DOMAIN-KEYWORD,github,🚀 节点选择
+  - DOMAIN-SUFFIX,github.com,🚀 节点选择
+  - DOMAIN-SUFFIX,github.io,🚀 节点选择
+  - DOMAIN-SUFFIX,githubassets.com,🚀 节点选择
+  - DOMAIN-SUFFIX,githubusercontent.com,🚀 节点选择
+  - DOMAIN-KEYWORD,google,🚀 节点选择
+  - DOMAIN-KEYWORD,twitter,🚀 节点选择
+  - DOMAIN-KEYWORD,facebook,🚀 节点选择
+  - DOMAIN-KEYWORD,instagram,🚀 节点选择
+  - DOMAIN-KEYWORD,reddit,🚀 节点选择
+  - DOMAIN-KEYWORD,telegram,🚀 节点选择
+  - DOMAIN-KEYWORD,whatsapp,🚀 节点选择
+  - DOMAIN-KEYWORD,zoom,🚀 节点选择
+  - DOMAIN-KEYWORD,slack,🚀 节点选择
+  - DOMAIN-KEYWORD,notion,🚀 节点选择
+
+  # ===== 6. 最终兜底规则 =====
+  # 所有未被上述规则匹配的流量，默认走代理节点
+  - MATCH,🚀 节点选择
